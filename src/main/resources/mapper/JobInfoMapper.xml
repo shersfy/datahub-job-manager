@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.shersfy.datahub.jobmanager.mapper.JobInfoMapper">
+    <resultMap id="BaseResultMap" type="org.shersfy.datahub.jobmanager.model.JobInfo">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="pid" property="pid" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="job_type" property="jobType" jdbcType="INTEGER"/>
+        <result column="job_name" property="jobName" jdbcType="VARCHAR"/>
+        <result column="job_code" property="jobCode" jdbcType="VARCHAR"/>
+        <result column="job_class" property="jobClass" jdbcType="VARCHAR"/>
+        <result column="period_type" property="periodType" jdbcType="INTEGER"/>
+        <result column="effective_time" property="effectiveTime" jdbcType="TIMESTAMP"/>
+        <result column="ineffective_time" property="ineffectiveTime" jdbcType="TIMESTAMP"/>
+        <result column="start_delay" property="startDelay" jdbcType="BIGINT"/>
+        <result column="cron_expression" property="cronExpression" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="disable" property="disable" jdbcType="BIT"/>
+        <result column="note" property="note" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="org.shersfy.datahub.jobmanager.model.JobInfo" extends="BaseResultMap">
+        <result column="config" property="config" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+	<sql id="Base_Column_List">
+		id, pid, user_id, job_type, job_name, job_code, job_class, period_type,
+		effective_time, ineffective_time, start_delay, cron_expression, status, 
+		disable, note, create_time, update_time
+	</sql>
+	<sql id="Blob_Column_List">
+		config
+	</sql>
+	<select id="findById" resultMap="ResultMapWithBLOBs"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />, <include refid="Blob_Column_List" />
+		from job_info
+		where id = #{id,jdbcType=BIGINT}
+
+	</select>
+	<delete id="deleteById" parameterType="java.lang.Long">
+		delete from job_info
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByIds">
+		delete from job_info where id in
+		<foreach collection="list " item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</delete>
+	<update id="updateById"
+		parameterType="org.shersfy.datahub.jobmanager.model.JobInfo">
+		update job_info
+		<set>
+			<if test="pid != null">
+				pid = #{pid,jdbcType=BIGINT},
+			</if>
+			<if test="userId != null">
+				user_id = #{userId,jdbcType=BIGINT},
+			</if>
+			<if test="jobType != null">
+				job_type = #{jobType,jdbcType=INTEGER},
+			</if>
+			<if test="jobName != null">
+				job_name = #{jobName,jdbcType=VARCHAR},
+			</if>
+			<if test="jobCode != null">
+				job_code = #{jobCode,jdbcType=VARCHAR},
+			</if>
+			<if test="jobClass != null">
+				job_class = #{jobClass,jdbcType=VARCHAR},
+			</if>
+			<if test="periodType != null">
+				period_type = #{periodType,jdbcType=INTEGER},
+			</if>
+			<if test="effectiveTime != null">
+				effective_time = #{effectiveTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="ineffectiveTime != null">
+				ineffective_time = #{ineffectiveTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="startDelay != null">
+				start_delay = #{startDelay,jdbcType=BIGINT},
+			</if>
+			<if test="cronExpression != null">
+				cron_expression = #{cronExpression,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="disable != null">
+				disable = #{disable,jdbcType=BIT},
+			</if>
+			<if test="note != null">
+				note = #{note,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="config != null">
+				config = #{config,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	<insert id="insert" parameterType="JobInfo" keyProperty="id"
+		useGeneratedKeys="true">
+		insert into job_info (id, pid, user_id,
+		job_type, job_name, job_code,
+		job_class, period_type, effective_time,
+		ineffective_time, start_delay, cron_expression,
+		status, disable, note,
+		create_time, update_time, config
+		)
+		values (#{id,jdbcType=BIGINT}, #{pid,jdbcType=BIGINT},
+		#{userId,jdbcType=BIGINT},
+		#{jobType,jdbcType=INTEGER}, #{jobName,jdbcType=VARCHAR}, #{jobCode,jdbcType=VARCHAR},
+		#{jobClass,jdbcType=VARCHAR}, #{periodType,jdbcType=INTEGER},
+		#{effectiveTime,jdbcType=TIMESTAMP},
+		#{ineffectiveTime,jdbcType=TIMESTAMP}, #{startDelay,jdbcType=BIGINT},
+		#{cronExpression,jdbcType=VARCHAR},
+		#{status,jdbcType=INTEGER}, #{disable,jdbcType=BIT}, #{note,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+		#{config,jdbcType=LONGVARCHAR}
+		)
+	</insert>
+	<select id="findList" parameterType="map" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />, <include refid="Blob_Column_List" />
+		from job_info
+		<include refid="condition" />
+		<if test="types != null">
+			AND job_type IN
+			<foreach collection="types" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="pids != null">
+			AND pid IN
+			<foreach collection="pids" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="uids != null">
+			AND user_id IN
+			<foreach collection="uids" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<choose>
+			<when test="(sort !=null and sort !='') and (order !=null and order !='')">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>order by id DESC</otherwise>
+		</choose>
+		<if test="startIndex !=null  and pageSize !=null">limit #{startIndex}, #{pageSize}</if>
+	</select>
+	<select id="findListCount" resultType="Long" parameterType="map">
+		select count(1) from job_info
+		<include refid="condition" />
+		<if test="types != null">
+			AND job_type IN
+			<foreach collection="types" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="pids != null">
+			AND pid IN
+			<foreach collection="pids" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="uids != null">
+			AND user_id IN
+			<foreach collection="uids" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+    <sql id="condition">
+        <where>
+        	1 = 1
+            <if test="pid != null">and pid = #{pid, jdbcType=BIGINT}</if>
+            <if test="userId != null">and user_id = #{userId, jdbcType=BIGINT}</if>
+            <if test="jobType != null">and job_type = #{jobType, jdbcType=INTEGER}</if>
+            <if test="jobName != null">and job_name like concat("%", #{jobName},"%")</if>
+            <if test="jobCode != null">and job_code = #{jobCode, jdbcType=VARCHAR}</if>
+            <if test="jobClass != null">and job_class = #{jobClass, jdbcType=VARCHAR}</if>
+            <if test="periodType != null">and period_type = #{periodType, jdbcType=INTEGER}</if>
+            <if test="effectiveTime != null">and effective_time = #{effectiveTime, jdbcType=TIMESTAMP}</if>
+            <if test="ineffectiveTime != null">and ineffective_time = #{ineffectiveTime, jdbcType=TIMESTAMP}</if>
+            <if test="startDelay != null">and start_delay = #{startDelay, jdbcType=BIGINT}</if>
+            <if test="cronExpression != null">and cron_expression = #{cronExpression, jdbcType=VARCHAR}</if>
+            <if test="status != null">and status = #{status, jdbcType=INTEGER}</if>
+            <if test="disable != null">and disable = #{disable, jdbcType=BIT}</if>
+            <if test="config != null">and config like concat("%", #{config},"%")</if>
+            <if test="note != null">and note = #{note, jdbcType=VARCHAR}</if>
+            <if test="startTime != null"><![CDATA[  and create_time >=  DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T') ]]></if>
+			<if test="endTime != null"> <![CDATA[ and create_time <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T') ]]> </if>
+        </where>
+    </sql>
+</mapper>
