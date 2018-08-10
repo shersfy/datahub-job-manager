@@ -1,4 +1,7 @@
 version: 1.0.0
+jobCodePrefix: job
+jobSubThreadSize: 500
+dispatchJobTimeoutSeconds: 60
 spring:
   datasource:
     name: mysql-datasource

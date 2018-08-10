@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.shersfy.datahub.commons.beans.Page;
 import org.shersfy.datahub.commons.beans.Result;
-import org.shersfy.datahub.jobmanager.constant.Const.JobTypes;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.vo.JobInfoVo;
 
@@ -38,7 +37,7 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	/**
 	 * 实现数据上传功能<br/>
 	 * jobCode= 分组名.数据源类型.目标类型.任务名前缀.jobId(>5位)<br/>
-	 * groupStr={@link JobTypes}<br/>
+	 * groupStr={@link JobType}<br/>
 	 * 
 	 * @param
 	 * @param info定时任务对象
@@ -112,7 +111,7 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 * @param job 任务信息
 	 * @return boolean
 	 */
-	public boolean isAvailable(JobInfo job);
+	public boolean isEffective(JobInfo job);
 	/**
 	 * 初始化执行
 	 */
@@ -125,5 +124,12 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 * @param because 结束假执行中的原因
 	 */
 	public void initJobLogs(Long jobId, String because);
+
+	/**
+	 * 远程服务check配置参数
+	 * @param config
+	 * @return
+	 */
+    public Result remoteCheck(String config);
 
 }

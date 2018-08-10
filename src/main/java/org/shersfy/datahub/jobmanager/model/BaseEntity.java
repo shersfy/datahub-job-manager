@@ -62,9 +62,6 @@ public class BaseEntity implements Serializable {
 	/**
 	 * 获取排序字段
 	 * 
-	 * @author PengYang
-	 * @date 2016-08-29
-	 * 
 	 * @return
 	 */
 	public String getSort() {
@@ -73,9 +70,6 @@ public class BaseEntity implements Serializable {
 
 	/**
 	 * 设置排序字段
-	 * 
-	 * @author PengYang
-	 * @date 2016-08-29
 	 * 
 	 * @param sort
 	 */
@@ -86,9 +80,6 @@ public class BaseEntity implements Serializable {
 	/**
 	 * 获取排序方式
 	 * 
-	 * @author PengYang
-	 * @date 2016-08-29
-	 * 
 	 * @return
 	 */
 	public String getOrder() {
@@ -97,9 +88,6 @@ public class BaseEntity implements Serializable {
 
 	/**
 	 * 设置排序方式(ASC|DESC)
-	 * 
-	 * @author PengYang
-	 * @date 2016-08-29
 	 * 
 	 * @param order
 	 */

@@ -1,23 +1,34 @@
 package org.shersfy.datahub.jobmanager.rest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 
 import org.apache.commons.lang.StringUtils;
 import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.commons.beans.Result.ResultCode;
 import org.shersfy.datahub.commons.beans.ResultMsg;
 import org.shersfy.datahub.jobmanager.constant.Const;
+import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
+import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
 import org.shersfy.datahub.jobmanager.i18n.I18nCodes;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.i18n.PropertiesExt;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.vo.LoginUser;
+import org.shersfy.datahub.jobmanager.rest.form.BaseForm;
 import org.shersfy.datahub.jobmanager.rest.form.JobInfoForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.alibaba.fastjson.JSON;
@@ -48,6 +59,70 @@ public class BaseController implements I18nCodes{
 	public HttpServletResponse getResponse() {
 		return THREAD_LOCAL_RESPONSE.get();
 	}
+	
+	public Result check(BaseForm form, BindingResult bundle) {
+	    bundle = form.check(bundle);
+	    if(bundle.hasErrors()){
+	        return errors(bundle.getAllErrors());
+	    }
+	    return new Result();
+	}
+	
+	/***
+     * 返回校验错误信息
+     * 
+     * @param list
+     * @return Result
+     */
+    public Result errors(List<ObjectError> list) {
+        Result res = new Result();
+        res.setCode(FAIL);
+        if(list!=null){
+            StringBuffer msg = new StringBuffer(0);
+            PropertiesExt i18n = getI18n();
+
+            for(ObjectError err: list){
+
+                String code      = err.getCode();
+                String name     = err.getObjectName();
+                Object[] args   = err.getArguments();
+                Object rejected = null;
+                
+                List<Object> argList = new ArrayList<>();
+                if(err instanceof FieldError){
+                    FieldError fErr = (FieldError) err;
+                    name = fErr.getField();
+                    code = fErr.getDefaultMessage();
+                    rejected = fErr.getRejectedValue();
+                }
+
+                argList.add(name);
+                if(args!=null){
+                    for(Object arg :args){
+                        if(arg instanceof DefaultMessageSourceResolvable){
+                            continue;
+                        }
+                        if(arg instanceof Boolean
+                                && (DecimalMin.class.getSimpleName().equals(code)
+                                   || DecimalMax.class.getSimpleName().equals(code))){
+                            continue;
+                        }
+                        argList.add(arg);
+                    }
+                }
+                
+                if(rejected!=null){
+                    argList.add(rejected);
+                }
+                
+                String errMsg = i18n.getProperty(code==null?"":code, argList.toArray());
+                msg.append(StringUtils.isBlank(errMsg)?err.getDefaultMessage():errMsg);
+                msg.append("; ");
+            }
+            res.setMsg(msg.toString());
+        }
+        return formatMsg(res);
+    }
 
 	/**
 	 * 获取登录用户信息
@@ -105,21 +180,23 @@ public class BaseController implements I18nCodes{
 	    
 	    JobInfo info = new JobInfo();
 	    info.setId(form.getId());
-	    info.setUserId(getLoginUser().getId());
 	    info.setPid(form.getPid());
+	    info.setUserId(getLoginUser().getId());
+	    
 	    info.setJobName(form.getJobName());
+	    info.setConfig(form.getConfig());
 	    info.setNote(form.getNote());
 
-		//from
-		info.setFromId(form.getFromId());
-
-		//to
-		info.setToId(form.getToId());
-		info.setToType(form.getToType());
-
-		info.setCronExpression(form.getCronExpression());
-		info.setPeriodType(form.getPeriodType());
-
+	    info.setPeriodType(form.isCyclicity()?JobPeriodType.PeriodCircle.index():JobPeriodType.PeriodOnceImmed.index());
+	    info.setStartDelay(10L);
+	    info.setCronExpression(form.getCronExpression());
+		
+		info.setEffectiveTime(form.getStartTime());
+		info.setIneffectiveTime(form.getEndTime());
+		
+		info.setStatus(JobStatus.Normal.index());
+		info.setDisable(false);
+		
 		return info;
 	}
 

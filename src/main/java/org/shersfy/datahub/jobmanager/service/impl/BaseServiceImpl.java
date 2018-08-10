@@ -1,6 +1,7 @@
-package org.shersfy.datahub.service.jobmanager.impl;
+package org.shersfy.datahub.jobmanager.service.impl;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,12 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Id extends Serializa
 
     @Override
     public int insert(T entity) {
+        if(entity.getCreateTime()==null) {
+            entity.setCreateTime(new Date());
+        }
+        if(entity.getUpdateTime()==null) {
+            entity.setUpdateTime(entity.getCreateTime());
+        }
         return getMapper().insert(entity);
     }
 
@@ -43,6 +50,9 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Id extends Serializa
 
     @Override
     public int updateById(T entity) {
+        if(entity.getUpdateTime()==null) {
+            entity.setUpdateTime(new Date());
+        }
         return getMapper().updateById(entity);
     }
 

@@ -21,7 +21,7 @@ management:
 # mybatis
 mybatis:
   mapper-locations: classpath:mapping/*.xml
-  type-aliases-package: org.shersfy.datahub.model
+  type-aliases-package: org.shersfy.datahub.jobmanager.model
 # logging
 logging:
   file: logs/${spring.application.name}.log
