@@ -18,6 +18,8 @@ import org.shersfy.datahub.commons.utils.DateUtil;
 import org.shersfy.datahub.jobmanager.constant.Const.CronType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobType;
+import org.shersfy.datahub.jobmanager.feign.DhubDbExecutorClient;
+import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.job.DispatcherJob;
 import org.shersfy.datahub.jobmanager.job.JobManager;
@@ -29,6 +31,8 @@ import org.shersfy.datahub.jobmanager.model.JobInfoVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSON;
 
 @Transactional
 @Service("jobInfoService")
@@ -43,6 +47,12 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     private JobInfoMapper mapper;
     @Resource
     private JobManager jobManager;
+    
+    @Resource
+    private JobLogService jobLogService;
+    
+    @Resource
+    private DhubDbExecutorClient dhubDbExecutorClient;
     
     @Override
     public BaseMapper<JobInfo, Long> getMapper() {
@@ -363,7 +373,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         }
         
         // 调用远程服务对配置参数check
-        return this.remoteCheck(info.getConfig());
+        return this.remoteCheck(info);
     }
 
     @Override
@@ -395,20 +405,59 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     
     @Override
     public void initAll() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void initJobLogs(Long jobId, String because) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
-    public Result remoteCheck(String config) {
-        // TODO Auto-generated method stub
-        return null;
+    public Result remoteCheck(JobInfo info) {
+        
+        JobServicesFeignClient client = getServicesFeignClient(JobType.valueOf(info.getJobType()));
+        String text = client.callCheckJobConfig(info.getConfig());
+        
+        return JSON.parseObject(text, Result.class);
+    }
+
+    @Override
+    public JobServicesFeignClient getServicesFeignClient(JobType type) {
+        JobServicesFeignClient client = null;
+        switch (type) {
+            case LocalUpload:
+                break;
+            case DatabaseMove:
+            case AliyunRDS:
+            case AmazonRDS:
+                client = dhubDbExecutorClient;
+                break;
+            case ClientUpload:
+                break;
+            case DumpUpload:
+                break;
+            case S3Upload:
+                break;
+            case FtpUpload:
+                break;
+            case CsvUpload:
+                break;
+            case ExcelUpload:
+                break;
+            case HDFS:
+            case Hive:
+            case HiveSpark:
+                break;
+            default:
+                break;
+        }
+        return client;
+    }
+
+    @Override
+    public JobLogService getJobLogService() {
+        return jobLogService;
     }
 
 }

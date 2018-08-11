@@ -5,10 +5,16 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.shersfy.datahub.commons.exception.DatahubException;
+import org.shersfy.datahub.commons.meta.LogMeta;
+import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
+import org.shersfy.datahub.jobmanager.model.JobLog;
 import org.shersfy.datahub.jobmanager.service.JobInfoService;
+import org.shersfy.datahub.jobmanager.service.JobLogService;
+import org.shersfy.datahub.jobmanager.service.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Job基类
@@ -17,11 +23,14 @@ public abstract class BaseJob implements Job{
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(BaseJob.class);
 
-    private JobInfoService jobInfoService;
+    protected JobInfoService jobInfoService;
+    protected JobLogService jobLogService;
+    protected LogManager logManager;
     
-    private JobDataMap dataMap = null;
-	private JobInfo job        = null;
-	private Long timeOut       = null;
+    private JobDataMap dataMap;
+	private JobInfo job;
+	private JobLog log;
+	private Long timeOut;
 
 	public BaseJob(){
 	}
@@ -47,6 +56,18 @@ public abstract class BaseJob implements Job{
 
 
     public abstract void dispatch(JobExecutionContext context) throws DatahubException;
+    
+    /**发送日志到日志管理器**/
+    public void sendMsg2LogManager(Level level, String msg) {
+        msg = msg == null?"":msg;
+        msg = String.format("jobId={}, logId={}, %s", job.getId(), log.getId(), msg);
+        
+        LogMeta meta = new LogMeta(level, msg);
+        String data  = "{\"jobId\": %s, \"logId\": %s, \"content\": \"%s\"}";
+        data = String.format(data, job.getId(), log.getId(), meta.getLine());
+        
+        logManager.sendMsg(new MessageData(data));
+    }
 
 	/**
 	 * job执行前调用
@@ -62,6 +83,23 @@ public abstract class BaseJob implements Job{
 	    Long jobId = dataMap.getLong("jobId");
 	    job = jobInfoService.findById(jobId);
         job = job==null?(JobInfo) dataMap.get("job"):job;
+        
+        
+        // 插入执行记录
+        jobLogService = jobInfoService.getJobLogService();
+        log = new JobLog();
+
+        ///
+        ///
+        ///
+        ///
+        ///
+        ///
+        ///
+        ///
+        
+        jobLogService.insert(log);
+        LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
 	}
 
 	/**
@@ -69,31 +107,32 @@ public abstract class BaseJob implements Job{
 	 *
 	 */
 	public void afterJob() throws DatahubException{
-	    LOGGER.info("execute successful");
+	    sendMsg2LogManager(Level.INFO, "execute successful");
 	}
 	
 	private void finallyDo() {
-	    LOGGER.info("finished");
+	    sendMsg2LogManager(Level.INFO, "finished");
     }
 	/***
 	 * job执行异常时调用
 	 * 
 	 * @param e
 	 */
-	public void exceptionJob(DatahubException e){
-
+	public void exceptionJob(DatahubException ex){
+	    sendMsg2LogManager(Level.ERROR, "error:\n"+ex.getMessage());
+	    LOGGER.error(job.getJobCode(), ex);
 	}
-
-    public JobInfoService getJobInfoService() {
-        return jobInfoService;
-    }
-
+	
     public JobDataMap getDataMap() {
         return dataMap;
     }
 
     public JobInfo getJob() {
         return job;
+    }
+    
+    public JobLog getJobLog() {
+        return log;
     }
 
     public Long getTimeOut() {

@@ -38,12 +38,6 @@ public class JobManagerController extends BaseController{
         if(res.getCode() != SUCESS){
             return res;
         }
-        // 远程服务参数check
-        res = jobInfoService.remoteCheck(form.getConfig());
-        if(res.getCode() != SUCESS){
-            return res;
-        }
-        
         // 提交作业
         JobInfo info = initJobInfo(form);
         res = jobInfoService.saveJob(info);
