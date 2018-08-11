@@ -21,6 +21,8 @@ import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.i18n.PropertiesExt;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.LoginUser;
+import org.shersfy.datahub.jobmanager.rest.form.BaseForm;
+import org.shersfy.datahub.jobmanager.rest.form.JobInfoForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;

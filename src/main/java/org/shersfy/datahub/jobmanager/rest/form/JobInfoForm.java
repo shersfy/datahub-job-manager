@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.rest;
+package org.shersfy.datahub.jobmanager.rest.form;
 
 
 import javax.validation.constraints.NotBlank;
