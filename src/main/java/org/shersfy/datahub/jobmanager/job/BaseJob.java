@@ -23,14 +23,18 @@ public abstract class BaseJob implements Job{
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(BaseJob.class);
 
-    protected JobInfoService jobInfoService;
-    protected JobLogService jobLogService;
+    private JobInfo job;
+    private JobLog log;
+    
+    private Long timeOut;
+    private JobDataMap dataMap;
+    
     protected LogManager logManager;
     
-    private JobDataMap dataMap;
-	private JobInfo job;
-	private JobLog log;
-	private Long timeOut;
+    protected JobLogService jobLogService;
+    
+    protected JobInfoService jobInfoService;
+    
 
 	public BaseJob(){
 	}
