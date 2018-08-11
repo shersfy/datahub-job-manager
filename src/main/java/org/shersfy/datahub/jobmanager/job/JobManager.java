@@ -235,9 +235,6 @@ public class JobManager {
      * 恢复调度</br>
      * If any of the Job'sTrigger s missed one or more fire-times, then the Trigger's misfire instruction will be applied.
      * 
-     * @author PengYang
-     * @date 2017-12-15
-     * 
      * @param jobCode
      * @param type
      * @throws DatahubException

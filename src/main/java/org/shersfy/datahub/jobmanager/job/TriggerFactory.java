@@ -21,9 +21,6 @@ public class TriggerFactory {
 	/**
 	 * 创建触发器对象
 	 * 
-	 * @author PengYang
-	 * @date 2016-09-01
-	 * 
 	 * @param job
 	 * @return Trigger
 	 * @throws ParseException
