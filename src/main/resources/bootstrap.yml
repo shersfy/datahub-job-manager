@@ -11,7 +11,16 @@ spring:
       label: master
       profile: dev
     zookeeper: # zookeeper server
+      enabled: false
       connect-string: zknode1:2181, zknode2:2181, zknode3:2181
+# eureka server
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    enabled: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 # management
 management:
   endpoints:

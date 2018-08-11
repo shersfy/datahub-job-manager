@@ -19,7 +19,7 @@ import org.shersfy.datahub.jobmanager.constant.Const.CronType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
-import org.shersfy.datahub.jobmanager.job.DispatchJob;
+import org.shersfy.datahub.jobmanager.job.DispatcherJob;
 import org.shersfy.datahub.jobmanager.job.JobManager;
 import org.shersfy.datahub.jobmanager.mapper.BaseMapper;
 import org.shersfy.datahub.jobmanager.mapper.JobInfoMapper;
@@ -155,7 +155,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
                 }
             }
             
-            info.setJobClass(DispatchJob.class.getName());
+            info.setJobClass(DispatcherJob.class.getName());
             if(JobPeriodType.PeriodCircle.index() == info.getPeriodType()) {
                 savePeriodJob(info);
             } else {

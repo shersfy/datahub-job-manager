@@ -3,6 +3,9 @@ package org.shersfy.datahub.jobmanager.i18n;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -15,10 +18,12 @@ import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.commons.utils.LocaleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.EncodedResource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.web.context.support.ServletContextResource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 
 /**
@@ -133,31 +138,45 @@ public class I18nMessages implements I18nCodes{
 	public Resource[] getLocations() {
 		return locations;
 	}
-
-	public void setLocations(Resource... locations) throws IOException {
-		for(Resource location :locations){
-			if(location instanceof ServletContextResource){
-				ServletContextResource scr = (ServletContextResource) location;
-				String path = scr.getPath();
-				String name = FilenameUtils.getName(path);
-				if(name.endsWith(".properties")){
-					//处理单个文件
-					String lang = name.substring(name.indexOf("_")+1, name.indexOf("."));
-					PropertiesExt pror = new PropertiesExt();
-					PropertiesLoaderUtils.fillProperties(pror, new EncodedResource(scr, this.fileEncoding));
-					I18N.put(LocaleUtil.toLocale(lang).getLanguage(), pror);
-					File file = location.getFile();
-					LOGGER.info("I18n loaded messages file {}", file.getName());
-					
-				}
-				else{
-					
-				}
-			}
-		}
-		
-		this.locations = locations;
+	
+	public void setLocations(String[] locations) throws IOException {
+	    ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+	    List<Resource> resources = new ArrayList<Resource>();
+	    if (locations != null) {
+	      for (String location : locations) {
+	        try {
+	          Resource[] messages = resourceResolver.getResources(location);
+	          resources.addAll(Arrays.asList(messages));
+	        } catch (IOException e) {
+	          // ignore
+	        }
+	      }
+	    }
+	    
+	    for(Resource location :resources){
+            if(location instanceof FileSystemResource){
+                FileSystemResource src = (FileSystemResource) location;
+                String path = src.getPath();
+                String name = FilenameUtils.getName(path);
+                if(name.endsWith(".properties")){
+                    //处理单个文件
+                    String lang = name.substring(name.indexOf("_")+1, name.indexOf("."));
+                    PropertiesExt pror = new PropertiesExt();
+                    PropertiesLoaderUtils.fillProperties(pror, new EncodedResource(src, this.fileEncoding));
+                    I18N.put(LocaleUtil.toLocale(lang).getLanguage(), pror);
+                    File file = location.getFile();
+                    LOGGER.info("I18n loaded messages file {}", file.getName());
+                    
+                }
+                else{
+                    
+                }
+            }
+        }
+	    
+	    this.locations = resources.toArray(new Resource[resources.size()]);
 	}
+
 	
 	public void setLocation(Resource location) {
 		this.locations = new Resource[] {location};

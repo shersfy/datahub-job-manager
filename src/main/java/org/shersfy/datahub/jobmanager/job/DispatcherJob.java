@@ -10,7 +10,7 @@ import org.shersfy.datahub.jobmanager.model.JobInfo;
  * 
  * 2018年8月11日
  */
-public class DispatchJob extends BaseJob{
+public class DispatcherJob extends BaseJob{
 
     @Override
     public void dispatch(JobExecutionContext context) throws DatahubException {

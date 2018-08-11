@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,7 +31,7 @@ public class JobManagerController extends BaseController{
         return "Welcom Datahub Job Manager Application "+ version;
     }
     
-    @PostMapping("/api/v1/job/submit")
+    @GetMapping("/api/v1/job/submit")
     public Object submitJob(@Valid JobInfoForm form, BindingResult bundle) {
         // 本地check
         Result res = check(form, bundle);
@@ -54,12 +53,7 @@ public class JobManagerController extends BaseController{
     
     /**任务--查看任务详情*/
     @GetMapping("/api/v1/job/list")
-    public Object listJobs(@Valid JobInfoForm form, BindingResult bundle){
-        
-        Result res = check(form, bundle);
-        if(res.getCode() != SUCESS){
-            return res;
-        }
+    public Object listJobs(JobInfoForm form){
         
         JobInfo where = new JobInfo();
         where.setJobName(form.getJobName());
@@ -73,9 +67,8 @@ public class JobManagerController extends BaseController{
         List<Long> uids     = null;
         
         List<?> data = jobInfoService.findPageVo(where, pageNum, pageSize, types, pids, uids).getData();
-        res.setModel(data);
         
-        return res;
+        return data;
     }
     
     
