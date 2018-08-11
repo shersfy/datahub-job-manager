@@ -10,82 +10,78 @@
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
         <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
     </resultMap>
-    <sql id="Base_Column_List">
-    
-    id, job_id, status, path, start_time, end_time
-  </sql>
-    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long">
-    
-    select 
-    
-        <include refid="Base_Column_List"/>
-    from job_log
-    where id = #{id,jdbcType=BIGINT}
-  
-    </select>
-    <delete id="deleteById" parameterType="java.lang.Long">
-    
-    delete from job_log
-    where id = #{id,jdbcType=BIGINT}
-  </delete>
-    <update id="updateById" parameterType="org.shersfy.datahub.jobmanager.model.JobLog">
-    
-    update job_log
-    
-        <set>
-      
-            <if test="jobId != null">
-        job_id = #{jobId,jdbcType=BIGINT},
-      </if>
-      
-            <if test="status != null">
-        status = #{status,jdbcType=INTEGER},
-      </if>
-      
-            <if test="path != null">
-        path = #{path,jdbcType=VARCHAR},
-      </if>
-      
-            <if test="startTime != null">
-        start_time = #{startTime,jdbcType=TIMESTAMP},
-      </if>
-      
-            <if test="endTime != null">
-        end_time = #{endTime,jdbcType=TIMESTAMP},
-      </if>
-    
-        </set>
-    where id = #{id,jdbcType=BIGINT}
-  
-    </update>
-    <insert id="insert" parameterType="JobLog" keyProperty="id" useGeneratedKeys="true">
-    
-    insert into job_log (id, job_id, status, 
-      path, start_time, end_time
-      )
-    values (#{id,jdbcType=BIGINT}, #{jobId,jdbcType=BIGINT}, #{status,jdbcType=INTEGER}, 
-      #{path,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}
-      )
-  </insert>
-    <select id="findList" resultMap="BaseResultMap" parameterType="JobLog">select
-        <include refid="Base_Column_List"/>from job_log
-        <include refid="condition"/>
-        <choose>
-            <when test="(sort !=null and sort !='') and (order !=null and order !='')">order by ${sort} ${order}</when>
-            <otherwise>order by id asc</otherwise>
-        </choose>
-        <if test="startIndex !=null  and pageSize !=null">limit #{startIndex}, #{pageSize}</if>
-    </select>
-    <select id="findListCount" resultType="Long" parameterType="JobLog">select count(1) from job_log
-        <include refid="condition"/>
-    </select>
+	<sql id="Base_Column_List">
+		id, job_id, status, path, start_time, end_time
+	</sql>
+	<select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from job_log
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteById" parameterType="java.lang.Long">
+		delete from job_log
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<update id="updateById" parameterType="org.shersfy.datahub.jobmanager.model.JobLog">
+		update job_log
+		<set>
+			<if test="jobId != null">
+				job_id = #{jobId,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+
+			<if test="path != null">
+				path = #{path,jdbcType=VARCHAR},
+			</if>
+
+			<if test="startTime != null">
+				start_time = #{startTime,jdbcType=TIMESTAMP},
+			</if>
+
+			<if test="endTime != null">
+				end_time = #{endTime,jdbcType=TIMESTAMP},
+			</if>
+
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+
+	</update>
+	<insert id="insert" parameterType="JobLog" keyProperty="id" useGeneratedKeys="true">
+		insert into job_log (id, job_id, status,
+		path, start_time, end_time
+		)
+		values (#{id,jdbcType=BIGINT}, #{jobId,jdbcType=BIGINT},
+		#{status,jdbcType=INTEGER},
+		#{path,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<select id="findList" resultMap="BaseResultMap" parameterType="JobLog">
+		select
+		<include refid="Base_Column_List" />
+		from job_log
+		<include refid="condition" />
+		<choose>
+			<when test="(sort !=null and sort !='') and (order !=null and order !='')">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>order by id asc</otherwise>
+		</choose>
+		<if test="startIndex !=null  and pageSize !=null">limit #{startIndex}, #{pageSize}</if>
+	</select>
+	<select id="findListCount" resultType="Long" parameterType="JobLog">
+		select count(1) from job_log
+		<include refid="condition" />
+	</select>
     <sql id="condition">
         <where>
             <if test="jobId != null">and job_id = #{jobId, jdbcType=BIGINT}</if>
             <if test="status != null">and status = #{status, jdbcType=INTEGER}</if>
             <if test="path != null">and path = #{path, jdbcType=VARCHAR}</if>
-            <if test="startTime != null">and start_time = #{startTime, jdbcType=TIMESTAMP}</if>
-            <if test="endTime != null">and end_time = #{endTime, jdbcType=TIMESTAMP}</if>
+            <if test="startTime != null"><![CDATA[  and start_time >=  DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T') ]]></if>
+			<if test="endTime != null"> <![CDATA[ and start_time <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T') ]]> </if>
         </where>
     </sql>
 </mapper>
