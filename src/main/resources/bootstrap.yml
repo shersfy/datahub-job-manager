@@ -11,7 +11,7 @@ spring:
       label: master
       profile: dev
     zookeeper: # zookeeper server
-      connect-string: zknode3:2181
+      connect-string: zknode1:2181, zknode2:2181, zknode3:2181
 # management
 management:
   endpoints:

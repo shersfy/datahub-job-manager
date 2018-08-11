@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @EnableDiscoveryClient
 @ComponentScan("org.shersfy.datahub.jobmanager")
-@MapperScan("org.shersfy.datahub.jobmanager.model.mapper")
+@MapperScan("org.shersfy.datahub.jobmanager.mapper")
 @SpringBootApplication
 public class JobManagerApplication {
 
