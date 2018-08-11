@@ -29,16 +29,33 @@ CREATE TABLE `job_info` (
   `ineffective_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '失效时间',
   `start_delay` bigint(20) NOT NULL COMMENT '启动延迟',
   `cron_expression` varchar(255) NOT NULL COMMENT 'cron表达式',
-  `status` int(1) NOT NULL DEFAULT '0' COMMENT '调度状态(0：等待，1：调度中(默认)，2：调度完成)',
+  `status` int(1) NOT NULL DEFAULT '0' COMMENT '调度状态(0：正常等待，1：调度中(默认)，2：调度完成)',
   `disable` tinyint(1) NOT NULL DEFAULT '0' COMMENT '启用禁用(0:启用(默认)，1：禁用)',
   `config` longtext COMMENT '配置参数',
   `note` varchar(255) DEFAULT NULL COMMENT '备注',
   `create_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_job_key` (`job_code`,`job_type`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务';
 
+-- ----------------------------
+-- Table structure for job_log
+-- ----------------------------
+DROP TABLE IF EXISTS `job_log`;
+CREATE TABLE `job_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `job_id` bigint(20) NOT NULL COMMENT '任务ID',
+  `status` int(1) NOT NULL DEFAULT '0' COMMENT '结果状态(0：执行中(默认)，1：执行成功，2：执行失败)',
+  `path` varchar(255) COMMENT '日志存放路径',
+  `start_time` timestamp NULL DEFAULT NULL COMMENT '开始时间',
+  `end_time` timestamp NULL DEFAULT NULL COMMENT '结束时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='任务日志';
+
+-- ----------------------------
+-- Quartz config
+-- ----------------------------
 -- Quartz config start
 -- # In your Quartz properties file, you'll need to set 
 -- # org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.StdJDBCDelegate

@@ -14,10 +14,6 @@ public class BaseEntity implements Serializable {
     private Long id;
     /** 项目ID **/
     private Long pid;
-    /** 排序字段 **/
-    private transient String sort;
-    /** 排序方式 **/
-    private transient String order;
 	/** 创建时间 **/
     private Date createTime;
     /** 更新时间 **/
@@ -26,6 +22,10 @@ public class BaseEntity implements Serializable {
     private Date startTime;
     /** 检索结束时间 **/
     private Date endTime;
+    /** 排序字段 **/
+    private transient String sort;
+    /** 排序方式 **/
+    private transient String order;
 
 	public Long getId() {
 		return id;

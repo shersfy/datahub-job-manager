@@ -11,7 +11,7 @@ public class JobLog extends BaseEntity {
     /** 任务ID **/
     private Long jobId;
 
-    /** 结果状态(1:成功，2：失败) **/
+    /** 结果状态(0：执行中(默认)，1：执行成功，2：执行失败) **/
     private Integer status;
 
     /** 开始时间 **/
@@ -20,11 +20,8 @@ public class JobLog extends BaseEntity {
     /** 结束时间 **/
     private Date endTime;
 
-    /** 详细信息 **/
-    private String detail;
-    
-    /** 文件大小 **/
-    private Long fileSize;
+    /** 日志存放路径 **/
+    private String path;
 
     public Long getJobId() {
         return jobId;
@@ -58,19 +55,12 @@ public class JobLog extends BaseEntity {
         this.endTime = endTime;
     }
 
-    public String getDetail() {
-        return detail;
+    public String getPath() {
+        return path;
     }
 
-    public void setDetail(String detail) {
-        this.detail = detail;
+    public void setPath(String path) {
+        this.path = path;
     }
-    
-    public Long getFileSize() {
-		return fileSize;
-	}
-    
-    public void setFileSize(Long fileSize) {
-		this.fileSize = fileSize;
-	}
+
 }
