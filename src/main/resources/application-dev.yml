@@ -13,6 +13,36 @@ spring:
       jdbc-url: jdbc:mysql://127.0.0.1:3306/datahub_job_manager?useUnicode=true&characterEncoding=utf8&useSSL=false
       username: '{cipher}6d7a6184efc2a28a9c7e7b31ca462a8099b3a637607fd68262cb44dc99388f69'
       password: '{cipher}1033b1da3eee0e66e254fd8560df4d81f2f69b8d75cce4befb3d756d0d4ec088'
+  quartz:
+    job-store-type: jdbc
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: DefaultQuartzScheduler
+            instanceId: AUTO
+            rmi:
+              export: false
+              proxy: false
+            wrapJobExecutionInUserTransaction: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 500
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+          jobStore: 
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            misfireThreshold: 60000
+            useProperties: false
+            dataSource: myDS
+            tablePrefix: QRTZ_
+            isClustered: true
+            clusterCheckinInterval: 20000
+# mybatis
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: org.shersfy.datahub.jobmanager.model
 # logging
 logging:
   file: logs/${spring.application.name}.log

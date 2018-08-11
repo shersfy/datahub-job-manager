@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -26,16 +25,16 @@ import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 
 /**
  * 作业任务管理器
  */
-@Order(100)
 @Component("jobManager")
+//@Order(100)
 public class JobManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobManager.class);
@@ -44,7 +43,7 @@ public class JobManager {
     @Value("${jobSubThreadSize}")
     private int jobSubThreadSize;
     
-    @Resource(name="schedulerFactory")
+    @Autowired
     private Scheduler scheduler;
 
     /**
@@ -54,10 +53,10 @@ public class JobManager {
      */
     @PostConstruct
     public void start() throws SchedulerException{
-        LOGGER.info("Quartz Scheduler starting ...");
+        LOGGER.info("Quartz Scheduler {} starting ...", scheduler.getClass().getName());
         SUB_THREAD_POOL_ONCE = Executors.newFixedThreadPool(jobSubThreadSize);
         scheduler.start();
-        LOGGER.info("Quartz Scheduler started");
+        LOGGER.info("Quartz Scheduler {} started", scheduler.getClass().getName());
     }
 
     /**

@@ -10,6 +10,7 @@ import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.service.JobInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +21,15 @@ public class JobManagerController extends BaseController{
     
     protected Logger LOGGER = LoggerFactory.getLogger(getClass());
     
+    @Value("${version}")
+    private String version = "";
+    
     @Resource
     private JobInfoService jobInfoService;
     
     @GetMapping("/")
     public Object index() {
-        return "Welcom Datahub Job Manager Application";
+        return "Welcom Datahub Job Manager Application "+ version;
     }
     
     @PostMapping("/api/v1/job/submit")
