@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.shersfy.datahub.jobmanager.mapper.JobLogMapper">
+    <resultMap id="BaseResultMap" type="org.shersfy.datahub.jobmanager.model.JobLog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="job_id" property="jobId" jdbcType="BIGINT"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    
+    id, job_id, status, path, start_time, end_time
+  </sql>
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    
+    select 
+    
+        <include refid="Base_Column_List"/>
+    from job_log
+    where id = #{id,jdbcType=BIGINT}
+  
+    </select>
+    <delete id="deleteById" parameterType="java.lang.Long">
+    
+    delete from job_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <update id="updateById" parameterType="org.shersfy.datahub.jobmanager.model.JobLog">
+    
+    update job_log
+    
+        <set>
+      
+            <if test="jobId != null">
+        job_id = #{jobId,jdbcType=BIGINT},
+      </if>
+      
+            <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      
+            <if test="path != null">
+        path = #{path,jdbcType=VARCHAR},
+      </if>
+      
+            <if test="startTime != null">
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      
+            <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+    
+        </set>
+    where id = #{id,jdbcType=BIGINT}
+  
+    </update>
+    <insert id="insert" parameterType="JobLog" keyProperty="id" useGeneratedKeys="true">
+    
+    insert into job_log (id, job_id, status, 
+      path, start_time, end_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{jobId,jdbcType=BIGINT}, #{status,jdbcType=INTEGER}, 
+      #{path,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <select id="findList" resultMap="BaseResultMap" parameterType="JobLog">select
+        <include refid="Base_Column_List"/>from job_log
+        <include refid="condition"/>
+        <choose>
+            <when test="(sort !=null and sort !='') and (order !=null and order !='')">order by ${sort} ${order}</when>
+            <otherwise>order by id asc</otherwise>
+        </choose>
+        <if test="startIndex !=null  and pageSize !=null">limit #{startIndex}, #{pageSize}</if>
+    </select>
+    <select id="findListCount" resultType="Long" parameterType="JobLog">select count(1) from job_log
+        <include refid="condition"/>
+    </select>
+    <sql id="condition">
+        <where>
+            <if test="jobId != null">and job_id = #{jobId, jdbcType=BIGINT}</if>
+            <if test="status != null">and status = #{status, jdbcType=INTEGER}</if>
+            <if test="path != null">and path = #{path, jdbcType=VARCHAR}</if>
+            <if test="startTime != null">and start_time = #{startTime, jdbcType=TIMESTAMP}</if>
+            <if test="endTime != null">and end_time = #{endTime, jdbcType=TIMESTAMP}</if>
+        </where>
+    </sql>
+</mapper>
