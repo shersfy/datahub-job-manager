@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.service.impl;
+package org.shersfy.datahub.jobmanager.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,14 +19,13 @@ import org.shersfy.datahub.jobmanager.constant.Const.CronType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
-import org.shersfy.datahub.jobmanager.jobs.DispatchJob;
+import org.shersfy.datahub.jobmanager.job.DispatchJob;
+import org.shersfy.datahub.jobmanager.job.JobManager;
 import org.shersfy.datahub.jobmanager.mapper.BaseMapper;
 import org.shersfy.datahub.jobmanager.mapper.JobInfoMapper;
+import org.shersfy.datahub.jobmanager.model.BaseVo;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
-import org.shersfy.datahub.jobmanager.model.vo.BaseVo;
-import org.shersfy.datahub.jobmanager.model.vo.JobInfoVo;
-import org.shersfy.datahub.jobmanager.service.JobInfoService;
-import org.shersfy.datahub.jobmanager.service.component.JobManager;
+import org.shersfy.datahub.jobmanager.model.JobInfoVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

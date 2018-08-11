@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.service.impl;
+package org.shersfy.datahub.jobmanager.service;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -9,7 +9,6 @@ import java.util.Map;
 import org.shersfy.datahub.commons.beans.Page;
 import org.shersfy.datahub.jobmanager.mapper.BaseMapper;
 import org.shersfy.datahub.jobmanager.model.BaseEntity;
-import org.shersfy.datahub.jobmanager.service.BaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

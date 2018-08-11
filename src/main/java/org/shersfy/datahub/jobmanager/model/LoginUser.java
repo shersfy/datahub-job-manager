@@ -1,6 +1,4 @@
-package org.shersfy.datahub.jobmanager.model.vo;
-
-import org.shersfy.datahub.jobmanager.model.BaseEntity;
+package org.shersfy.datahub.jobmanager.model;
 
 public class LoginUser extends BaseEntity{
     /**

@@ -1,6 +1,4 @@
-package org.shersfy.datahub.jobmanager.model.vo;
-
-import org.shersfy.datahub.jobmanager.model.JobInfo;
+package org.shersfy.datahub.jobmanager.model;
 
 /**
  * VO类

@@ -6,7 +6,7 @@ import java.util.List;
 import org.shersfy.datahub.commons.beans.Page;
 import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
-import org.shersfy.datahub.jobmanager.model.vo.JobInfoVo;
+import org.shersfy.datahub.jobmanager.model.JobInfoVo;
 
 /**
  * 任务管理接口

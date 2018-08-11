@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.jobs;
+package org.shersfy.datahub.jobmanager.job;
 
 import org.quartz.JobExecutionContext;
 import org.shersfy.datahub.commons.exception.DatahubException;

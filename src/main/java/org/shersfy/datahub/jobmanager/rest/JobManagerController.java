@@ -7,7 +7,6 @@ import javax.validation.Valid;
 
 import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
-import org.shersfy.datahub.jobmanager.rest.form.JobInfoForm;
 import org.shersfy.datahub.jobmanager.service.JobInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

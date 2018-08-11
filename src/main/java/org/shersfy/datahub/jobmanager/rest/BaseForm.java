@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.rest.form;
+package org.shersfy.datahub.jobmanager.rest;
 
 import java.text.ParseException;
 import java.util.Date;

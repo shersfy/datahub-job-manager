@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.service.component;
+package org.shersfy.datahub.jobmanager.job;
 
 import java.text.ParseException;
 

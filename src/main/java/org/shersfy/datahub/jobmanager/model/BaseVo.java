@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.model.vo;
+package org.shersfy.datahub.jobmanager.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.shersfy.datahub.jobmanager.model.BaseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
