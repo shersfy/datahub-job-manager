@@ -19,28 +19,24 @@ public class Const {
     
     /**任务状态**/
     public static enum JobStatus{
-        /**空状态**/
-        Dummy,
+        /**正常等待状态**/
+        Normal,
         /**调度中, 正在执行**/
         Scheduling,
         /**调度结束, 已移除调度器**/
-        Scheduled,
-        /**正常等待状态**/
-        Normal;
+        Scheduled;
 
         public static JobStatus valueOf(Integer index){
             if(index == null){
-                return Dummy;
+                return Normal;
             }
             switch (index) {
             case 1:
                 return Scheduling;
             case 2:
                 return Scheduled;
-            case 3:
-                return Normal;
             default:
-                return Dummy;
+                return Normal;
             }
         }
 

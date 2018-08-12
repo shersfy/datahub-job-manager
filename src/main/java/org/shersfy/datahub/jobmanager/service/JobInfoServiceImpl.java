@@ -21,7 +21,6 @@ import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.feign.DhubDbExecutorClient;
 import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
-import org.shersfy.datahub.jobmanager.job.DispatcherJob;
 import org.shersfy.datahub.jobmanager.job.JobManager;
 import org.shersfy.datahub.jobmanager.mapper.BaseMapper;
 import org.shersfy.datahub.jobmanager.mapper.JobInfoMapper;
@@ -141,15 +140,12 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         JobInfo old = null;
         try {
 
+            String jobCode = info.getJobCode();
+            info.setJobCode(String.valueOf(System.nanoTime()));
             res = this.checkJobInfo(info);
+            info.setJobCode(jobCode);
+            
             if(res.getCode() != SUCESS){
-                return res;
-            }
-
-            JobType type = JobType.valueOf(info.getJobType());
-            if(type == null || type == JobType.Dummy){
-                res.setCode(FAIL);
-                res.setI18nMsg(new ResultMsg(MSGT0018I000001, "JobTypes", info.getJobType()));
                 return res;
             }
 
@@ -169,7 +165,6 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
                 }
             }
             
-            info.setJobClass(DispatcherJob.class.getName());
             if(JobPeriodType.PeriodCircle.index() == info.getPeriodType()) {
                 savePeriodJob(info);
             } else {
@@ -301,19 +296,22 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         return res;
     }
     
+    /**
+     * put到map的值必须可以能序列化
+     * @param info
+     * @return
+     */
     private JobDataMap getMap(JobInfo info){
         JobDataMap map = new JobDataMap();
         map.put("jobId", info.getId());
         map.put("job", info);
         map.put("dispatchJobTimeoutSeconds", dispatchJobTimeoutSeconds);
-        map.put(JobInfoService.class.getName(), this);
         return map;
     }
 
 
     @Override
     public void startAllJobs() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -362,24 +360,24 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     public Result checkJobInfo(JobInfo info) throws DatahubException{
         Result res = null;
         // 有效期check
-        if(info.getEffectiveTime()==null) {
+        if(info.getActiveTime()==null) {
             info.setEffectiveTime(new Date());
         }
-        if(info.getIneffectiveTime()==null) {
-            info.setIneffectiveTime(new Date(ConstCommons.MAX_DATE));
+        if(info.getExpireTime()==null) {
+            info.setExpireTime(new Date(ConstCommons.MAX_DATE));
         }
         if(!isEffective(info)){
             res = new Result();
-            String effective   = DateUtil.format(info.getEffectiveTime(), ConstCommons.FORMAT_DATETIME);
-            String ineffective = DateUtil.format(info.getIneffectiveTime(), ConstCommons.FORMAT_DATETIME);
+            String active = DateUtil.format(info.getActiveTime(), ConstCommons.FORMAT_DATETIME);
+            String expire = DateUtil.format(info.getExpireTime(), ConstCommons.FORMAT_DATETIME);
             Calendar cal = Calendar.getInstance();
-            cal.setTime(info.getEffectiveTime());
+            cal.setTime(info.getActiveTime());
             if(cal.get(Calendar.YEAR)==9999){
-                ineffective = "";
+                active = "";
             }
             
             res.setCode(FAIL);
-            res.setI18nMsg(new ResultMsg(MSGT0027E000002, info.getCronExpression(), effective, ineffective));
+            res.setI18nMsg(new ResultMsg(MSGT0027E000002, info.getCronExpression(), active, expire));
             return res;
         }
         
@@ -399,7 +397,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         }
 
         Date systime = new Date();
-        Date endtime = job.getIneffectiveTime();
+        Date endtime = job.getExpireTime();
         if(DateUtil.compareDate(systime, endtime)>0){
             return false;
         }

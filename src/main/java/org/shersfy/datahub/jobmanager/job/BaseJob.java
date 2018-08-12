@@ -9,9 +9,13 @@ import org.quartz.JobExecutionException;
 import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.commons.meta.LogMeta;
 import org.shersfy.datahub.commons.meta.MessageData;
+import org.shersfy.datahub.commons.utils.DateUtil;
 import org.shersfy.datahub.jobmanager.constant.Const.JobLogStatus;
+import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
+import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobLog;
+import org.shersfy.datahub.jobmanager.service.InitJobManager;
 import org.shersfy.datahub.jobmanager.service.JobInfoService;
 import org.shersfy.datahub.jobmanager.service.JobLogService;
 import org.shersfy.datahub.jobmanager.service.LogManager;
@@ -86,18 +90,18 @@ public abstract class BaseJob implements Job{
 	 * @throws DatahubException 
 	 */
 	public void beforeJob(JobExecutionContext context) throws DatahubException{
+	    jobInfoService = InitJobManager.getBean(JobInfoService.class);
+        jobLogService  = jobInfoService.getJobLogService();
+        logManager     = jobInfoService.getLogManager();
+	    
 	    dataMap = context.getJobDetail().getJobDataMap();
 	    Long jobId = dataMap.getLong("jobId");
 	    timeOut = dataMap.getLong("dispatchJobTimeoutSeconds");
 	    
-	    jobInfoService = (JobInfoService) dataMap.get(JobInfoService.class.getName());
-	    jobLogService  = jobInfoService.getJobLogService();
-	    logManager     = jobInfoService.getLogManager();
-	    
 	    job = jobInfoService.findById(jobId);
         job = job==null?(JobInfo) dataMap.get("job"):job;
         
-        LOGGER.info("jobId={}, logId={}, insert job log record", job==null?"":job.getId(), log==null?"":log.getId());
+        LOGGER.info("jobId={}, logId={}, begining ...", job==null?"":job.getId(), log==null?"":log.getId());
         // 插入执行记录
         log = new JobLog();
         log.setJobId(job.getId());
@@ -107,6 +111,12 @@ public abstract class BaseJob implements Job{
         
         jobLogService.insert(log);
         LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
+        
+        JobInfo udp = new JobInfo();
+        udp.setId(job.getId());
+        udp.setStatus(JobStatus.Scheduling.index());
+        jobInfoService.updateById(udp);
+        LOGGER.info("jobId={}, logId={}, update job status scheduling", job.getId(), log.getId());
 	}
 
 	/**
@@ -119,6 +129,21 @@ public abstract class BaseJob implements Job{
 	
 	private void finallyDo() {
 	    LOGGER.info("jobId={}, logId={}, finished", job.getId(), log.getId());
+	    
+	    if(jobInfoService!=null&&job!=null&&job.getId()!=null) {
+	        JobStatus status = JobStatus.Normal;
+	        JobPeriodType period = JobPeriodType.valueOf(job.getPeriodType());
+	        // 过期判断
+	        boolean expire = DateUtil.compareDate(job.getExpireTime(), new Date()) < 0;
+	        if(period == JobPeriodType.PeriodOnceImmed || expire) {
+	            status = JobStatus.Scheduled;
+	        }
+	        JobInfo udp = new JobInfo();
+	        udp.setId(job.getId());
+	        udp.setStatus(status.index());
+	        jobInfoService.updateById(udp);
+	        LOGGER.info("jobId={}, logId={}, update job status {}", job.getId(), log.getId(), status.name().toLowerCase());
+	    }
     }
 	/***
 	 * job执行异常时调用

@@ -27,10 +27,10 @@ public class JobInfo extends BaseEntity {
     private Integer periodType;
 
     /** 生效时间 **/
-    private Date effectiveTime;
+    private Date activeTime;
 
     /** 失效时间 **/
-    private Date ineffectiveTime;
+    private Date expireTime;
 
     /** 启动延迟 **/
     private Long startDelay;
@@ -98,20 +98,20 @@ public class JobInfo extends BaseEntity {
         this.periodType = periodType;
     }
 
-    public Date getEffectiveTime() {
-        return effectiveTime;
+    public Date getActiveTime() {
+        return activeTime;
     }
 
-    public void setEffectiveTime(Date effectiveTime) {
-        this.effectiveTime = effectiveTime;
+    public void setEffectiveTime(Date activeTime) {
+        this.activeTime = activeTime;
     }
 
-    public Date getIneffectiveTime() {
-        return ineffectiveTime;
+    public Date getExpireTime() {
+        return expireTime;
     }
 
-    public void setIneffectiveTime(Date ineffectiveTime) {
-        this.ineffectiveTime = ineffectiveTime;
+    public void setExpireTime(Date expireTime) {
+        this.expireTime = expireTime;
     }
 
     public Long getStartDelay() {

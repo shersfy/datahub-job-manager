@@ -20,6 +20,7 @@ import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.i18n.I18nCodes;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.i18n.PropertiesExt;
+import org.shersfy.datahub.jobmanager.job.DispatcherJob;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.LoginUser;
 import org.shersfy.datahub.jobmanager.rest.form.BaseForm;
@@ -189,6 +190,7 @@ public class BaseController implements I18nCodes{
 	    
 	    info.setJobName(form.getJobName());
 	    info.setJobType(JobType.valueOfAlias(form.getJobType()).index());
+	    info.setJobClass(DispatcherJob.class.getName());
 	    info.setConfig(form.getConfig());
 	    info.setNote(form.getNote());
 
@@ -197,7 +199,7 @@ public class BaseController implements I18nCodes{
 	    info.setCronExpression(form.getCronExpression());
 		
 		info.setEffectiveTime(form.getStartTime());
-		info.setIneffectiveTime(form.getEndTime());
+		info.setExpireTime(form.getEndTime());
 		
 		info.setStatus(JobStatus.Normal.index());
 		info.setDisable(false);
