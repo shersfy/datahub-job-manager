@@ -86,10 +86,9 @@ public abstract class BaseJob implements Job{
 	 * @throws DatahubException 
 	 */
 	public void beforeJob(JobExecutionContext context) throws DatahubException{
-	    LOGGER.info("begining ...");
 	    dataMap = context.getJobDetail().getJobDataMap();
-	    timeOut = dataMap.getLong("dispatchJobTimeoutSeconds");
 	    Long jobId = dataMap.getLong("jobId");
+	    timeOut = dataMap.getLong("dispatchJobTimeoutSeconds");
 	    
 	    jobInfoService = (JobInfoService) dataMap.get(JobInfoService.class.getName());
 	    jobLogService  = jobInfoService.getJobLogService();
@@ -98,7 +97,7 @@ public abstract class BaseJob implements Job{
 	    job = jobInfoService.findById(jobId);
         job = job==null?(JobInfo) dataMap.get("job"):job;
         
-        
+        LOGGER.info("jobId={}, logId={}, insert job log record", job==null?"":job.getId(), log==null?"":log.getId());
         // 插入执行记录
         log = new JobLog();
         log.setJobId(job.getId());
