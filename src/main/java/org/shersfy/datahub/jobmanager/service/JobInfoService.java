@@ -138,4 +138,6 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
     
     public JobLogService getJobLogService();
 
+    public LogManager getLogManager();
+
 }

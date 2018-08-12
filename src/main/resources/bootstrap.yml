@@ -18,7 +18,7 @@ eureka:
   instance:
     prefer-ip-address: true
   client:
-    enabled: false
+    enabled: true
     service-url:
       defaultZone: http://localhost:8761/eureka/
 # management
@@ -26,7 +26,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health, refresh
 # logging
 logging:
   file.max-size: 100MB

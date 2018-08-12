@@ -66,8 +66,12 @@ public abstract class BaseJob implements Job{
     
     /**发送日志到日志管理器**/
     public void sendMsg2LogManager(Level level, String msg) {
+        if(log==null || log.getId()==null) {
+            LOGGER.info("job log is null, {}", msg);
+            return;
+        }
         msg = msg == null?"":msg;
-        msg = String.format("jobId={}, logId={}, %s", job.getId(), log.getId(), msg);
+        msg = String.format("jobId=%s, logId=%s, %s", job.getId(), log.getId(), msg);
         
         LogMeta meta = new LogMeta(level, msg);
         String data  = "{\"jobId\": %s, \"logId\": %s, \"content\": \"%s\"}";
@@ -85,20 +89,22 @@ public abstract class BaseJob implements Job{
 	    LOGGER.info("begining ...");
 	    dataMap = context.getJobDetail().getJobDataMap();
 	    timeOut = dataMap.getLong("dispatchJobTimeoutSeconds");
+	    Long jobId = dataMap.getLong("jobId");
 	    
 	    jobInfoService = (JobInfoService) dataMap.get(JobInfoService.class.getName());
-	    Long jobId = dataMap.getLong("jobId");
+	    jobLogService  = jobInfoService.getJobLogService();
+	    logManager     = jobInfoService.getLogManager();
+	    
 	    job = jobInfoService.findById(jobId);
         job = job==null?(JobInfo) dataMap.get("job"):job;
         
         
         // 插入执行记录
-        jobLogService = jobInfoService.getJobLogService();
         log = new JobLog();
         log.setJobId(job.getId());
         log.setStatus(JobLogStatus.Executing.index());
         log.setStartTime(new Date());
-        log.setEndTime(log.getEndTime());
+        log.setEndTime(log.getStartTime());
         
         jobLogService.insert(log);
         LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
@@ -109,11 +115,11 @@ public abstract class BaseJob implements Job{
 	 *
 	 */
 	public void afterJob() throws DatahubException{
-	    sendMsg2LogManager(Level.INFO, "execute successful");
+	    LOGGER.info("jobId={}, logId={}, execute successful", job.getId(), log.getId());
 	}
 	
 	private void finallyDo() {
-	    sendMsg2LogManager(Level.INFO, "finished");
+	    LOGGER.info("jobId={}, logId={}, finished", job.getId(), log.getId());
     }
 	/***
 	 * job执行异常时调用
@@ -121,8 +127,8 @@ public abstract class BaseJob implements Job{
 	 * @param e
 	 */
 	public void exceptionJob(DatahubException ex){
-	    sendMsg2LogManager(Level.ERROR, "error:\n"+ex.getMessage());
-	    LOGGER.error(job.getJobCode(), ex);
+	    LOGGER.info("jobId={}, logId={}, finished", job==null?"":job.getId(), log==null?"":log.getId());
+	    LOGGER.error(job==null?"before error":job.getJobCode(), ex);
 	}
 	
     public JobDataMap getDataMap() {

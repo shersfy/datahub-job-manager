@@ -8,12 +8,6 @@ public class JobInfo extends BaseEntity {
      */
     private static final long serialVersionUID = 1L;
 
-    /** 主键 **/
-    private Long id;
-
-    /** 项目ID **/
-    private Long pid;
-
     /** 用户ID **/
     private Long userId;
 
@@ -55,22 +49,6 @@ public class JobInfo extends BaseEntity {
 
     /** 配置参数 **/
     private String config;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getPid() {
-        return pid;
-    }
-
-    public void setPid(Long pid) {
-        this.pid = pid;
-    }
 
     public Long getUserId() {
         return userId;

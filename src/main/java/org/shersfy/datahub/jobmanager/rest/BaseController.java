@@ -16,6 +16,7 @@ import org.shersfy.datahub.commons.beans.ResultMsg;
 import org.shersfy.datahub.jobmanager.constant.Const;
 import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
 import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
+import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.i18n.I18nCodes;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.i18n.PropertiesExt;
@@ -132,7 +133,10 @@ public class BaseController implements I18nCodes{
 	public LoginUser getLoginUser() {
 	    String text = (String) getRequest().getAttribute(Const.LOGIN_USER_KEY);
 	    if(StringUtils.isBlank(text)) {
-	        return null;
+	        LoginUser user = new LoginUser();
+	        user.setId(1L);
+	        user.setUserName("admin");
+	        return user;
 	    }
 		return JSON.parseObject(text, LoginUser.class);
 	}
@@ -184,6 +188,7 @@ public class BaseController implements I18nCodes{
 	    info.setUserId(getLoginUser().getId());
 	    
 	    info.setJobName(form.getJobName());
+	    info.setJobType(JobType.valueOfAlias(form.getJobType()).index());
 	    info.setConfig(form.getConfig());
 	    info.setNote(form.getNote());
 

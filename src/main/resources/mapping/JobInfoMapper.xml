@@ -76,10 +76,10 @@
 				period_type = #{periodType,jdbcType=INTEGER},
 			</if>
 			<if test="effectiveTime != null">
-				effective_time = #{effectiveTime,jdbcType=TIMESTAMP},
+				effective_time = DATE_FORMAT(#{effectiveTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T'), 
 			</if>
 			<if test="ineffectiveTime != null">
-				ineffective_time = #{ineffectiveTime,jdbcType=TIMESTAMP},
+				ineffective_time = DATE_FORMAT(#{ineffectiveTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T'),
 			</if>
 			<if test="startDelay != null">
 				start_delay = #{startDelay,jdbcType=BIGINT},
@@ -108,22 +108,20 @@
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-	<insert id="insert" parameterType="JobInfo" keyProperty="id"
-		useGeneratedKeys="true">
+	<insert id="insert" parameterType="JobInfo" keyProperty="id" useGeneratedKeys="true">
 		insert into job_info (id, pid, user_id,
 		job_type, job_name, job_code,
 		job_class, period_type, effective_time,
 		ineffective_time, start_delay, cron_expression,
 		status, disable, note,
-		create_time, update_time, config
-		)
+		create_time, update_time, config )
 		values (#{id,jdbcType=BIGINT}, #{pid,jdbcType=BIGINT},
 		#{userId,jdbcType=BIGINT},
 		#{jobType,jdbcType=INTEGER}, #{jobName,jdbcType=VARCHAR}, #{jobCode,jdbcType=VARCHAR},
 		#{jobClass,jdbcType=VARCHAR}, #{periodType,jdbcType=INTEGER},
-		#{effectiveTime,jdbcType=TIMESTAMP},
-		#{ineffectiveTime,jdbcType=TIMESTAMP}, #{startDelay,jdbcType=BIGINT},
-		#{cronExpression,jdbcType=VARCHAR},
+		DATE_FORMAT(#{effectiveTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T'), 
+		DATE_FORMAT(#{ineffectiveTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T'), 
+		#{startDelay,jdbcType=BIGINT}, #{cronExpression,jdbcType=VARCHAR},
 		#{status,jdbcType=INTEGER}, #{disable,jdbcType=BIT}, #{note,jdbcType=VARCHAR},
 		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
 		#{config,jdbcType=LONGVARCHAR}
@@ -198,8 +196,6 @@
             <if test="jobCode != null">and job_code = #{jobCode, jdbcType=VARCHAR}</if>
             <if test="jobClass != null">and job_class = #{jobClass, jdbcType=VARCHAR}</if>
             <if test="periodType != null">and period_type = #{periodType, jdbcType=INTEGER}</if>
-            <if test="effectiveTime != null">and effective_time = #{effectiveTime, jdbcType=TIMESTAMP}</if>
-            <if test="ineffectiveTime != null">and ineffective_time = #{ineffectiveTime, jdbcType=TIMESTAMP}</if>
             <if test="startDelay != null">and start_delay = #{startDelay, jdbcType=BIGINT}</if>
             <if test="cronExpression != null">and cron_expression = #{cronExpression, jdbcType=VARCHAR}</if>
             <if test="status != null">and status = #{status, jdbcType=INTEGER}</if>

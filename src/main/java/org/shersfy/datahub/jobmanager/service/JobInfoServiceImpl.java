@@ -29,6 +29,7 @@ import org.shersfy.datahub.jobmanager.model.BaseVo;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobInfoVo;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,21 +37,24 @@ import com.alibaba.fastjson.JSON;
 
 @Transactional
 @Service("jobInfoService")
+@RefreshScope
 public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long> 
     implements JobInfoService {
 
     @Value("${jobCodePrefix}")
     private String jobCodePrefix;
     @Value("${dispatchJobTimeoutSeconds}")
-    private int dispatchJobTimeoutSeconds = 60 * 1;
+    private long dispatchJobTimeoutSeconds = 60 * 1;
+   
     @Resource
     private JobInfoMapper mapper;
+    
     @Resource
     private JobManager jobManager;
-    
+    @Resource
+    private LogManager logManager;
     @Resource
     private JobLogService jobLogService;
-    
     @Resource
     private DhubDbExecutorClient dhubDbExecutorClient;
     
@@ -301,6 +305,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         JobDataMap map = new JobDataMap();
         map.put("jobId", info.getId());
         map.put("job", info);
+        map.put("dispatchJobTimeoutSeconds", dispatchJobTimeoutSeconds);
         map.put(JobInfoService.class.getName(), this);
         return map;
     }
@@ -357,12 +362,18 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     public Result checkJobInfo(JobInfo info) throws DatahubException{
         Result res = null;
         // 有效期check
+        if(info.getEffectiveTime()==null) {
+            info.setEffectiveTime(new Date());
+        }
+        if(info.getIneffectiveTime()==null) {
+            info.setIneffectiveTime(new Date(ConstCommons.MAX_DATE));
+        }
         if(!isEffective(info)){
             res = new Result();
             String effective   = DateUtil.format(info.getEffectiveTime(), ConstCommons.FORMAT_DATETIME);
             String ineffective = DateUtil.format(info.getIneffectiveTime(), ConstCommons.FORMAT_DATETIME);
             Calendar cal = Calendar.getInstance();
-            cal.setTime(info.getEndTime());
+            cal.setTime(info.getEffectiveTime());
             if(cal.get(Calendar.YEAR)==9999){
                 ineffective = "";
             }
@@ -382,9 +393,13 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         if(job==null){
             return false;
         }
+        
+        if(JobPeriodType.PeriodOnceImmed.index() == job.getPeriodType()) {
+            return true;
+        }
 
         Date systime = new Date();
-        Date endtime = job.getEndTime();
+        Date endtime = job.getIneffectiveTime();
         if(DateUtil.compareDate(systime, endtime)>0){
             return false;
         }
@@ -415,10 +430,13 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
 
     @Override
     public Result remoteCheck(JobInfo info) {
-        
+
         JobServicesFeignClient client = getServicesFeignClient(JobType.valueOf(info.getJobType()));
+        if(client==null) {
+            Result res = new Result(FAIL, "not support job type: "+info.getJobType());
+            return res;
+        }
         String text = client.callCheckJobConfig(info.getConfig());
-        
         return JSON.parseObject(text, Result.class);
     }
 
@@ -458,6 +476,11 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     @Override
     public JobLogService getJobLogService() {
         return jobLogService;
+    }
+
+    @Override
+    public LogManager getLogManager() {
+        return logManager;
     }
 
 }
