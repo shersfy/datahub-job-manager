@@ -1,0 +1,7 @@
+url=http://localhost:8081/api/v1/job/list
+method=get
+header.username=admin
+header.password=admin123
+
+params.jobName=数据库上传
+params.jobType=1
