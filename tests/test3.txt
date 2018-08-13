@@ -5,5 +5,8 @@ params.pid=1
 params.jobName=数据库上传
 params.jobType=db
 params.once=true
-params.config={dbUrl=jdbc:mysql://localhost:3306/datahub_job_manager,username=root,password=123456,sql=select * from job_log}
-
+params.config.dataSource.dbType=MySQL
+params.config.dataSource.url=jdbc:mysql://127.0.0.1:3306/datahub_job_manager?useUnicode=true&characterEncoding=utf8&useSSL=false
+params.config.dataSource.username=root
+params.config.dataSource.password=123456
+params.config.dataSource.sql=select * from job_log
