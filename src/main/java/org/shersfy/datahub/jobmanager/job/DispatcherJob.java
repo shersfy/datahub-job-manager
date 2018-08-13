@@ -5,7 +5,7 @@ import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.commons.beans.Result.ResultCode;
 import org.shersfy.datahub.commons.constant.JobConst.JobType;
 import org.shersfy.datahub.commons.exception.DatahubException;
-import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
+import org.shersfy.datahub.jobmanager.feign.ServicesFeignClient;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobLog;
 import org.slf4j.event.Level;
@@ -27,10 +27,10 @@ public class DispatcherJob extends BaseJob{
         
         Result res = null;
         try {
-            JobServicesFeignClient client = jobInfoService.getServicesFeignClient(JobType.valueOf(job.getJobType()));
+            ServicesFeignClient client = jobInfoService.getServicesFeignClient(JobType.valueOf(job.getJobType()));
             // 调用服务分发任务
             sendMsg2LogManager(Level.INFO, "dispatch job parameters config ...");
-            String text = client.callJobConfig(job.getId(), log.getId(), job.getConfig());
+            String text = client.callConfigJob(job.getId(), log.getId(), job.getConfig());
             res = JSON.parseObject(text, Result.class);
             if(res.getCode()!=ResultCode.SUCESS) {
                 sendMsg2LogManager(Level.ERROR, "dispatch job parameters config error: "+res.getMsg());

@@ -23,7 +23,7 @@ import org.shersfy.datahub.commons.meta.LogMeta;
 import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.commons.utils.DateUtil;
 import org.shersfy.datahub.jobmanager.feign.DhubDbExecutorClient;
-import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
+import org.shersfy.datahub.jobmanager.feign.ServicesFeignClient;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.mapper.BaseMapper;
 import org.shersfy.datahub.jobmanager.mapper.JobInfoMapper;
@@ -564,7 +564,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     @Override
     public Result remoteCheck(JobInfo info) {
 
-        JobServicesFeignClient client = getServicesFeignClient(JobType.valueOf(info.getJobType()));
+        ServicesFeignClient client = getServicesFeignClient(JobType.valueOf(info.getJobType()));
         if(client==null) {
             Result res = new Result(FAIL, "not support job type: "+info.getJobType());
             return res;
@@ -574,8 +574,8 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     }
 
     @Override
-    public JobServicesFeignClient getServicesFeignClient(JobType type) {
-        JobServicesFeignClient client = null;
+    public ServicesFeignClient getServicesFeignClient(JobType type) {
+        ServicesFeignClient client = null;
         switch (type) {
             case LocalUpload:
                 break;

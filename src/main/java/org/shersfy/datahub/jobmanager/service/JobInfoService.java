@@ -6,7 +6,7 @@ import java.util.List;
 import org.shersfy.datahub.commons.beans.Page;
 import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.commons.constant.JobConst.JobType;
-import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
+import org.shersfy.datahub.jobmanager.feign.ServicesFeignClient;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobInfoVo;
 
@@ -104,7 +104,7 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 */
     public Result remoteCheck(JobInfo info);
     
-    public JobServicesFeignClient getServicesFeignClient(JobType type);
+    public ServicesFeignClient getServicesFeignClient(JobType type);
     
     public JobLogService getJobLogService();
 
