@@ -20,8 +20,8 @@ public class JobInfoForm extends BaseForm{
 	/** 数据源任务类型 **/
 	@NotBlank(message=MSGT0001E000001)
 	private String jobType;
-    /** false:立即执行1次，true:周期性(cron表达式) **/
-    private boolean cyclicity;
+    /** true:立即执行1次，false:周期性(cron表达式) **/
+    private boolean once = true;
     /** cron表达式 **/
     private String cronExpression;
     /** 参数配置 **/
@@ -35,7 +35,7 @@ public class JobInfoForm extends BaseForm{
 			return check;
 		}
 		
-		if(StringUtils.isBlank(cronExpression) || !cyclicity){
+		if(StringUtils.isBlank(cronExpression) || once){
 			cronExpression = Const.CRON_DEFAULT;
 		}
 		
@@ -64,12 +64,12 @@ public class JobInfoForm extends BaseForm{
         this.jobName = jobName;
     }
 
-    public boolean isCyclicity() {
-        return cyclicity;
+    public boolean isOnce() {
+        return once;
     }
 
-    public void setCyclicity(boolean cyclicity) {
-        this.cyclicity = cyclicity;
+    public void setOnce(boolean once) {
+        this.once = once;
     }
 
     public String getCronExpression() {

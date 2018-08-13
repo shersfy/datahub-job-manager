@@ -4,7 +4,7 @@ import org.shersfy.datahub.jobmanager.hystrix.FeignClientFallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(name=DhubDbExecutorClient.serviceId, 
-fallback=FeignClientFallbackFactory.class)
+fallbackFactory=FeignClientFallbackFactory.class)
 public interface DhubDbExecutorClient extends JobServicesFeignClient {
     
     String serviceId = "datahub-db-executor";

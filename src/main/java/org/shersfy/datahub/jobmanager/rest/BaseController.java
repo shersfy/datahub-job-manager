@@ -194,7 +194,7 @@ public class BaseController implements I18nCodes{
 	    info.setConfig(form.getConfig());
 	    info.setNote(form.getNote());
 
-	    info.setPeriodType(form.isCyclicity()?JobPeriodType.PeriodCircle.index():JobPeriodType.PeriodOnceImmed.index());
+	    info.setPeriodType(form.isOnce()?JobPeriodType.PeriodOnceImmed.index():JobPeriodType.PeriodCircle.index());
 	    info.setStartDelay(10L);
 	    info.setCronExpression(form.getCronExpression());
 		

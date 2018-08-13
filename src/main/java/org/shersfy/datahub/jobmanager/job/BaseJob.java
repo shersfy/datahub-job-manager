@@ -141,25 +141,30 @@ public abstract class BaseJob implements Job{
     }
 
     private void finallyDo() {
-        LOGGER.info("jobId={}, logId={}, finished", job==null?"":job.getId(), 
-            log==null?"":log.getId());
 
         if(jobInfoService!=null&&job!=null&&job.getId()!=null) {
+            
+            boolean disable  = job.getDisable();
             JobStatus status = JobStatus.Normal;
             JobPeriodType period = JobPeriodType.valueOf(job.getPeriodType());
 
             // 一次性任务或过期
             if(period == JobPeriodType.PeriodOnceImmed || expire()) {
                 status = JobStatus.Scheduled;
+                disable = true;
             }
             JobInfo udp = new JobInfo();
             udp.setId(job.getId());
             udp.setStatus(status.index());
+            udp.setDisable(disable);
+            
             jobInfoService.updateById(udp);
             LOGGER.info("jobId={}, logId={}, update job status {}", job.getId(), 
                 log==null?"":log.getId(), status.name().toLowerCase());
         }
 
+        LOGGER.info("jobId={}, logId={}, finished", job==null?"":job.getId(), 
+            log==null?"":log.getId());
     }
 
     /**

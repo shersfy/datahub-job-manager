@@ -42,6 +42,10 @@ spring:
             tablePrefix: QRTZ_
             isClustered: true
             clusterCheckinInterval: 20000
+# hystrix 必须加否则无效(默认false)
+feign: 
+  hystrix:
+    enabled: true
 # management
 management:
   endpoints:

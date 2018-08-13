@@ -1,5 +1,6 @@
 package org.shersfy.datahub.jobmanager.hystrix;
 
+import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.jobmanager.feign.DhubDbExecutorClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +19,13 @@ public class DhubDbExecutorFallback implements DhubDbExecutorClient {
     @Override
     public String callJobConfig(Long jobId, Long logId, String config) {
         LOGGER.error("jobId={}, logId={}, config={}", jobId, logId, config);
-        return null;
+        return new Result(FAIL, "server error: "+serviceId).toString();
     }
 
     @Override
     public String callCheckJobConfig(String config) {
         LOGGER.error("check params error, config={}", config);
-        return null;
+        return new Result(FAIL, "server error: "+serviceId).toString();
     }
 
 }

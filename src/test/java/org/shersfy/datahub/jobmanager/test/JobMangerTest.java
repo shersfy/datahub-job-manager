@@ -14,15 +14,19 @@ public class JobMangerTest {
     
     @Test
     public void test01() {
-        String test = "test01.txt";
+        String test = "test1.txt";
         call(test);
     }
     @Test
     public void test02() {
-        String test = "test02.txt";
+        String test = "test2.txt";
         call(test);
     }
-    
+    @Test
+    public void test03() {
+        String test = "test3.txt";
+        call(test);
+    }
     
     public void call(String test) {
         HttpParamsLoader meta = new HttpParamsLoader(getClass().getResource(test).getPath());

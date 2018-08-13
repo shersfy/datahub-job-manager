@@ -4,7 +4,7 @@ method=get
 params.pid=1
 params.jobName=数据库上传
 params.jobType=db
-params.cyclicity=false
+params.once=false
 params.cronExpression=0 /1 * * * ?
 params.config={dbUrl=jdbc:mysql://localhost:3306/datahub_job_manager,username=root,password=123456,sql=select * from job_log}
 
