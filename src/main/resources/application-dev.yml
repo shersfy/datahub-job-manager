@@ -1,11 +1,6 @@
 version: 1.0.0
-jobCodePrefix: job
-jobSubThreadSize: 500
-dispatchJobTimeoutSeconds: 60
-i18n:
-  file-encoding: UTF-8
-  locations: classpath:i18n/*.properties
- 
+server:
+  port: 8081
 spring:
   datasource:
     name: mysql-datasource
@@ -19,6 +14,10 @@ spring:
       password: '{cipher}1033b1da3eee0e66e254fd8560df4d81f2f69b8d75cce4befb3d756d0d4ec088'
   quartz:
     job-store-type: jdbc
+    jobCodePrefix: job
+    # once immediately jobs run thread pool size
+    jobSubthreadSize: 500
+    jobDispatchTimeoutSeconds: 60
     properties:
       org:
         quartz:
@@ -43,6 +42,16 @@ spring:
             tablePrefix: QRTZ_
             isClustered: true
             clusterCheckinInterval: 20000
+# management
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, refresh
+# i18n
+i18n:
+  file-encoding: UTF-8
+  locations: classpath:i18n/*.properties
 # mybatis
 mybatis:
   mapper-locations: classpath:mapping/*.xml
@@ -54,4 +63,4 @@ logging:
     root: info
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS
-level: '%5p'
+    level: '%5p'

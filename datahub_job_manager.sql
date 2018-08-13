@@ -48,10 +48,11 @@ CREATE TABLE `job_log` (
   `job_id` bigint(20) NOT NULL COMMENT '任务ID',
   `status` int(1) NOT NULL DEFAULT '0' COMMENT '结果状态(0：执行中(默认)，1：执行成功，2：执行失败)',
   `path` varchar(255) COMMENT '日志存放路径',
+  `config` longtext COMMENT '历史配置参数',
   `start_time` timestamp NULL DEFAULT NULL COMMENT '开始时间',
   `end_time` timestamp NULL DEFAULT NULL COMMENT '结束时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='任务日志';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='任务执行历史记录';
 
 -- ----------------------------
 -- Quartz config

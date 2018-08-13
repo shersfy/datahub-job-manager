@@ -344,7 +344,7 @@ public interface I18nCodes {
 	public String MSGT0029I000001 = "MSG.T0029.I000001";
 	/** 停止任务错误 **/
 	public String MSGT0029E000000 = "MSG.T0029.E000000";
-	/** 停止任务错误: 该任务正在执行中，请先到执行历史停掉本次运行 **/
+	/** 停止任务错误: 该任务正在调度中，请先稍后重试 **/
 	public String MSGT0029E000001 = "MSG.T0029.E000001";
 	/** 激活任务: 任务 %s 已被激活 **/
 	public String MSGT0030I000001 = "MSG.T0030.I000001";

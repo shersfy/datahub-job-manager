@@ -16,7 +16,7 @@ import org.shersfy.datahub.jobmanager.model.JobInfoVo;
 public interface JobInfoService extends BaseService<JobInfo, Long> {
 
 	/** 立刻执行仅一次 **/
-	public final String ONCE_IMMED_CRON = "* * * * * ?";
+	String ONCE_IMMED_CRON = "* * * * * ?";
 	
 	/**
 	 * 分页查询 返回VO page
@@ -47,12 +47,6 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 */
 	public Result saveJob(JobInfo info);
 
-	/**
-	 * 启动所有的Job
-	 *
-	 */
-	public void startAllJobs();
-	
 
 	/**
 	 * check任务是否处于调度中, 返回
@@ -61,19 +55,18 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 * msg:执行信息
 	 * 
 	 * @param jobCode
-	 * @param groupNo
+	 * @param type
 	 * @return Result
 	 */
-	public Result checkExists(String jobCode, String groupNo);
+	public Result checkExists(String jobCode, JobType type);
 
 	/**
 	 * 启用调度
 	 * 
 	 * @param id
-	 * @param isRestart 是否服务重启
 	 * @return Result
 	 */
-	public Result enableJob(Long id, boolean isRestart);
+	public Result enableJob(Long id);
 
 	/**
 	 * 禁用调度
@@ -82,23 +75,8 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 * @param once 是否停止本次任务
 	 * @return Result
 	 */
-	public Result disableJob(Long id, boolean once);
+	public Result disableJob(Long id);
 
-	/**
-	 * 查询有效的任务<br/>
-	 * 状态为调度中 且有效(有效结束时间>=当前时间)
-	 * 
-	 * @param where
-	 * @return
-	 */
-	public List<JobInfo> findAvailableJobs(JobInfo where);
-	
-	/**
-	 * 任务名是否存在, 返回true存在, false不存在
-	 * @param jobName 任务名
-	 * @return  boolean
-	 */
-	public boolean existByJobName(String jobName);
 	/**
 	 * 删除任务
 	 * 
@@ -119,14 +97,6 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 */
 	public void initAll();
 	
-	/**
-	 * 初始化结束执行中的日志状态
-	 * 
-	 * @param jobId 任务ID
-	 * @param because 结束假执行中的原因
-	 */
-	public void initJobLogs(Long jobId, String because);
-
 	/**
 	 * 远程服务check配置参数
 	 * @param config

@@ -1,4 +1,4 @@
-package org.shersfy.datahub.jobmanager.job;
+package org.shersfy.datahub.jobmanager.service;
 
 
 import java.lang.reflect.Method;
@@ -22,11 +22,13 @@ import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.TriggerFiredBundle;
 import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.jobmanager.constant.Const.JobType;
+import org.shersfy.datahub.jobmanager.job.TriggerFactory;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 
@@ -35,13 +37,14 @@ import org.springframework.stereotype.Component;
  */
 @Component("jobManager")
 //@Order(100)
+@RefreshScope
 public class JobManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobManager.class);
     public static ExecutorService SUB_THREAD_POOL_ONCE = null;
 
-    @Value("${jobSubThreadSize}")
-    private int jobSubThreadSize;
+    @Value("${spring.quartz.jobSubthreadSize}")
+    private int jobSubthreadSize;
     
     @Autowired
     private Scheduler scheduler;
@@ -54,7 +57,7 @@ public class JobManager {
     @PostConstruct
     public void start() throws SchedulerException{
         LOGGER.info("Quartz Scheduler {} starting ...", scheduler.getClass().getName());
-        SUB_THREAD_POOL_ONCE = Executors.newFixedThreadPool(jobSubThreadSize);
+        SUB_THREAD_POOL_ONCE = Executors.newFixedThreadPool(jobSubthreadSize);
         scheduler.start();
         LOGGER.info("Quartz Scheduler {} started", scheduler.getClass().getName());
     }

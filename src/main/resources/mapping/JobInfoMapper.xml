@@ -41,8 +41,7 @@
 
 	</select>
 	<delete id="deleteById" parameterType="java.lang.Long">
-		delete from job_info
-		where id = #{id,jdbcType=BIGINT}
+		delete from job_info where id = #{id,jdbcType=BIGINT}
 	</delete>
 	<delete id="deleteByIds">
 		delete from job_info where id in

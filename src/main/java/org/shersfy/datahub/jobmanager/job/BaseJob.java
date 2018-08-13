@@ -6,7 +6,9 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.shersfy.datahub.commons.constant.ConstCommons;
 import org.shersfy.datahub.commons.exception.DatahubException;
+import org.shersfy.datahub.commons.exception.ExpiredException;
 import org.shersfy.datahub.commons.meta.LogMeta;
 import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.commons.utils.DateUtil;
@@ -32,42 +34,148 @@ public abstract class BaseJob implements Job{
 
     private JobInfo job;
     private JobLog log;
-    
+
     private Long timeOut;
     private JobDataMap dataMap;
-    
+
     protected LogManager logManager;
-    
+
     protected JobLogService jobLogService;
-    
+
     protected JobInfoService jobInfoService;
-    
-
-	public BaseJob(){
-	}
-
-	@Override
-	public void execute(JobExecutionContext context) throws JobExecutionException {
-
-		try {
-			// job执行前调用
-			beforeJob(context);
-			// 执行job
-			dispatch(context);
-			// job执行后调用
-			afterJob();
-
-		} catch (Exception ex) {
-			// job执行异常时调用
-			exceptionJob(DatahubException.throwDatahubException("job execute error", ex));
-		} finally {
-		    finallyDo();
-		}
-	}
 
 
+    public BaseJob(){
+    }
+
+    @Override
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+
+        try {
+            // job执行前调用
+            beforeJob(context);
+            // 执行job
+            dispatch(context);
+            // job执行后调用
+            afterJob();
+
+        } catch (Exception ex) {
+            // job执行异常时调用
+            exceptionJob(DatahubException.throwDatahubException("job execute error", ex));
+        } finally {
+            finallyDo();
+        }
+    }
+
+    /**
+     * job执行前调用
+     * @param context
+     * @throws DatahubException 
+     * @throws ExpiredException 
+     */
+    public void beforeJob(JobExecutionContext context) throws DatahubException, ExpiredException{
+        jobInfoService = InitJobManager.getBean(JobInfoService.class);
+        jobLogService  = jobInfoService.getJobLogService();
+        logManager     = jobInfoService.getLogManager();
+
+        dataMap = context.getJobDetail().getJobDataMap();
+        
+        Long jobId = dataMap.getLong("jobId");
+        timeOut    = dataMap.getLong("jobDispatchTimeoutSeconds");
+
+        job = jobInfoService.findById(jobId);
+        job = job==null?(JobInfo) dataMap.get("job"):job;
+
+        LOGGER.info("jobId={}, logId={}, begining ...", job==null?"":job.getId(), log==null?"":log.getId());
+
+        if(expire()) {
+            throw new ExpiredException("the job expired");
+        }
+
+        // 插入执行记录
+        log = new JobLog();
+        log.setJobId(job.getId());
+        log.setStatus(JobLogStatus.Executing.index());
+        log.setStartTime(new Date());
+        log.setEndTime(log.getStartTime());
+
+        jobLogService.insert(log);
+        LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
+
+        JobInfo udp = new JobInfo();
+        udp.setId(job.getId());
+        udp.setStatus(JobStatus.Scheduling.index());
+        jobInfoService.updateById(udp);
+        LOGGER.info("jobId={}, logId={}, update job status scheduling", job.getId(), log.getId());
+    }
+
+    /**
+     * 任务参数配置分发
+     * @param context
+     * @throws DatahubException
+     */
     public abstract void dispatch(JobExecutionContext context) throws DatahubException;
-    
+
+    /**
+     * job正常执行后调用
+     *
+     */
+    public void afterJob() throws DatahubException{
+        LOGGER.info("jobId={}, logId={}, execute successful", job.getId(), log.getId());
+    }
+
+    /***
+     * job执行异常时调用
+     * 
+     * @param e
+     */
+    public void exceptionJob(DatahubException ex){
+        if(ex instanceof ExpiredException) {
+            String expire = DateUtil.format(job.getExpireTime(), ConstCommons.FORMAT_DATETIME);
+            LOGGER.info("jobId={}, logId={}, expired {}, {}", job==null?"":job.getId(), 
+                log==null?"":log.getId(), expire, job.getCronExpression());
+            return;
+        }
+        LOGGER.error("jobId={}, logId={}, exception", job==null?"":job.getId(), log==null?"":log.getId());
+        LOGGER.error("", ex);
+    }
+
+    private void finallyDo() {
+        LOGGER.info("jobId={}, logId={}, finished", job==null?"":job.getId(), 
+            log==null?"":log.getId());
+
+        if(jobInfoService!=null&&job!=null&&job.getId()!=null) {
+            JobStatus status = JobStatus.Normal;
+            JobPeriodType period = JobPeriodType.valueOf(job.getPeriodType());
+
+            // 一次性任务或过期
+            if(period == JobPeriodType.PeriodOnceImmed || expire()) {
+                status = JobStatus.Scheduled;
+            }
+            JobInfo udp = new JobInfo();
+            udp.setId(job.getId());
+            udp.setStatus(status.index());
+            jobInfoService.updateById(udp);
+            LOGGER.info("jobId={}, logId={}, update job status {}", job.getId(), 
+                log==null?"":log.getId(), status.name().toLowerCase());
+        }
+
+    }
+
+    /**
+     * 任务有效期判定
+     * @return
+     */
+    public boolean expire() {
+        // 周期性任务有效期check 开始时间
+        JobPeriodType period = JobPeriodType.valueOf(job.getPeriodType());
+        if(JobPeriodType.PeriodCircle == period
+            && DateUtil.compareDate(new Date(), job.getExpireTime())>0){
+            return true;
+        }
+        return false;
+    }
+
     /**发送日志到日志管理器**/
     public void sendMsg2LogManager(Level level, String msg) {
         if(log==null || log.getId()==null) {
@@ -76,85 +184,14 @@ public abstract class BaseJob implements Job{
         }
         msg = msg == null?"":msg;
         msg = String.format("jobId=%s, logId=%s, %s", job.getId(), log.getId(), msg);
-        
+
         LogMeta meta = new LogMeta(level, msg);
         String data  = "{\"jobId\": %s, \"logId\": %s, \"content\": \"%s\"}";
         data = String.format(data, job.getId(), log.getId(), meta.getLine());
-        
+
         logManager.sendMsg(new MessageData(data));
     }
 
-	/**
-	 * job执行前调用
-	 * @param context
-	 * @throws DatahubException 
-	 */
-	public void beforeJob(JobExecutionContext context) throws DatahubException{
-	    jobInfoService = InitJobManager.getBean(JobInfoService.class);
-        jobLogService  = jobInfoService.getJobLogService();
-        logManager     = jobInfoService.getLogManager();
-	    
-	    dataMap = context.getJobDetail().getJobDataMap();
-	    Long jobId = dataMap.getLong("jobId");
-	    timeOut = dataMap.getLong("dispatchJobTimeoutSeconds");
-	    
-	    job = jobInfoService.findById(jobId);
-        job = job==null?(JobInfo) dataMap.get("job"):job;
-        
-        LOGGER.info("jobId={}, logId={}, begining ...", job==null?"":job.getId(), log==null?"":log.getId());
-        // 插入执行记录
-        log = new JobLog();
-        log.setJobId(job.getId());
-        log.setStatus(JobLogStatus.Executing.index());
-        log.setStartTime(new Date());
-        log.setEndTime(log.getStartTime());
-        
-        jobLogService.insert(log);
-        LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
-        
-        JobInfo udp = new JobInfo();
-        udp.setId(job.getId());
-        udp.setStatus(JobStatus.Scheduling.index());
-        jobInfoService.updateById(udp);
-        LOGGER.info("jobId={}, logId={}, update job status scheduling", job.getId(), log.getId());
-	}
-
-	/**
-	 * job正常执行后调用
-	 *
-	 */
-	public void afterJob() throws DatahubException{
-	    LOGGER.info("jobId={}, logId={}, execute successful", job.getId(), log.getId());
-	}
-	
-	private void finallyDo() {
-	    LOGGER.info("jobId={}, logId={}, finished", job.getId(), log.getId());
-	    
-	    if(jobInfoService!=null&&job!=null&&job.getId()!=null) {
-	        JobStatus status = JobStatus.Normal;
-	        JobPeriodType period = JobPeriodType.valueOf(job.getPeriodType());
-	        // 过期判断
-	        boolean expire = DateUtil.compareDate(job.getExpireTime(), new Date()) < 0;
-	        if(period == JobPeriodType.PeriodOnceImmed || expire) {
-	            status = JobStatus.Scheduled;
-	        }
-	        JobInfo udp = new JobInfo();
-	        udp.setId(job.getId());
-	        udp.setStatus(status.index());
-	        jobInfoService.updateById(udp);
-	        LOGGER.info("jobId={}, logId={}, update job status {}", job.getId(), log.getId(), status.name().toLowerCase());
-	    }
-    }
-	/***
-	 * job执行异常时调用
-	 * 
-	 * @param e
-	 */
-	public void exceptionJob(DatahubException ex){
-	    LOGGER.info("jobId={}, logId={}, finished", job==null?"":job.getId(), log==null?"":log.getId());
-	    LOGGER.error(job==null?"before error":job.getJobCode(), ex);
-	}
-	
     public JobDataMap getDataMap() {
         return dataMap;
     }
@@ -162,7 +199,7 @@ public abstract class BaseJob implements Job{
     public JobInfo getJob() {
         return job;
     }
-    
+
     public JobLog getJobLog() {
         return log;
     }

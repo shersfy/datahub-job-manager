@@ -5,4 +5,6 @@ import org.shersfy.datahub.jobmanager.model.JobLog;
 
 public interface JobLogMapper extends BaseMapper<JobLog, Long> {
 
+    int deleteByJobId(Long jobId);
+
 }

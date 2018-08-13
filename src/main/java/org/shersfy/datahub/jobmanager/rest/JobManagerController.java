@@ -43,7 +43,7 @@ public class JobManagerController extends BaseController{
         JobInfo info = initJobInfo(form);
         res = jobInfoService.saveJob(info);
         
-        return res;
+        return formatMsg(res);
     }
     
     /**任务--查看任务详情*/
@@ -64,6 +64,24 @@ public class JobManagerController extends BaseController{
         List<?> data = jobInfoService.findPageVo(where, pageNum, pageSize, types, pids, uids).getData();
         
         return data;
+    }
+    
+    @GetMapping("/api/v1/job/enable")
+    public Object enbaleJob(Long id) {
+        Result res = jobInfoService.enableJob(id);
+        return formatMsg(res);
+    }
+    
+    @GetMapping("/api/v1/job/disable")
+    public Object disableJob(Long id) {
+        Result res = jobInfoService.disableJob(id);
+        return formatMsg(res);
+    }
+    
+    @GetMapping("/api/v1/job/delete")
+    public Object deleteJob(Long id) {
+        Result res = jobInfoService.deleteJob(id);
+        return formatMsg(res);
     }
     
     

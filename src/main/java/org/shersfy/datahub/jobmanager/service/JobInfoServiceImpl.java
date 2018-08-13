@@ -14,19 +14,24 @@ import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.commons.beans.ResultMsg;
 import org.shersfy.datahub.commons.constant.ConstCommons;
 import org.shersfy.datahub.commons.exception.DatahubException;
+import org.shersfy.datahub.commons.meta.LogMeta;
+import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.commons.utils.DateUtil;
 import org.shersfy.datahub.jobmanager.constant.Const.CronType;
+import org.shersfy.datahub.jobmanager.constant.Const.JobLogStatus;
 import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
+import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
 import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.feign.DhubDbExecutorClient;
 import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
-import org.shersfy.datahub.jobmanager.job.JobManager;
 import org.shersfy.datahub.jobmanager.mapper.BaseMapper;
 import org.shersfy.datahub.jobmanager.mapper.JobInfoMapper;
 import org.shersfy.datahub.jobmanager.model.BaseVo;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobInfoVo;
+import org.shersfy.datahub.jobmanager.model.JobLog;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
@@ -40,10 +45,11 @@ import com.alibaba.fastjson.JSON;
 public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long> 
     implements JobInfoService {
 
-    @Value("${jobCodePrefix}")
+    @Value("${spring.quartz.jobCodePrefix}")
     private String jobCodePrefix;
-    @Value("${dispatchJobTimeoutSeconds}")
-    private long dispatchJobTimeoutSeconds = 60 * 1;
+    
+    @Value("${spring.quartz.jobDispatchTimeoutSeconds}")
+    private long jobDispatchTimeoutSeconds = 60 * 1;
    
     @Resource
     private JobInfoMapper mapper;
@@ -305,50 +311,184 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         JobDataMap map = new JobDataMap();
         map.put("jobId", info.getId());
         map.put("job", info);
-        map.put("dispatchJobTimeoutSeconds", dispatchJobTimeoutSeconds);
+        map.put("jobDispatchTimeoutSeconds", jobDispatchTimeoutSeconds);
         return map;
     }
 
 
     @Override
-    public void startAllJobs() {
-
+    public Result checkExists(String jobCode, JobType type) {
+        Result res = new Result();
+        try {
+            boolean flg = jobManager.checkExists(jobCode, type);
+            res.setModel(flg);
+        } catch (Throwable ex) {
+            LOGGER.error("", ex);
+            res.setCode(FAIL);
+            res.setMsg(I18nMessages.getCauseMsg(ex));
+            res.setI18nMsg(I18nMessages.getI18nMsg(MSGT0028E000000, ex, jobCode));
+        }
+        return res;
     }
 
     @Override
-    public Result checkExists(String jobCode, String groupNo) {
-        // TODO Auto-generated method stub
-        return null;
+    public Result enableJob(Long id) {
+        Result res = new Result();
+        
+        Date startTime = new Date();
+        JobInfo info   = null;
+        
+        try {
+            info = this.findById(id);
+            if(info == null){
+                res.setCode(FAIL);
+                res.setI18nMsg(new ResultMsg(MSGT0018I000001, "JobInfo", id));
+                return res;
+            }
+            
+            // 已经开启
+            if(jobManager.checkExists(info.getJobCode(), JobType.valueOf(info.getJobType()))){
+                res.setI18nMsg(new ResultMsg(MSGT0030I000001, info.getJobCode()));
+                return res;
+            }
+
+            JobDataMap map = this.getMap(info);
+            JobPeriodType period = JobPeriodType.valueOf(info.getPeriodType());
+            //立刻执行仅1此次
+            if(period == JobPeriodType.PeriodOnceImmed){
+                jobManager.onceImmediate(info, map);
+            
+            } else {
+                // 更新状态
+                JobInfo udp = new JobInfo();
+                udp.setId(id);
+                String msg = "";
+                // 有效期判断
+                if(this.isEffective(info)){
+                    // 加入调度
+                    jobManager.addJob(info, map);
+                    
+                    udp.setStatus(JobStatus.Normal.index());
+                    udp.setDisable(false);
+                    
+                    msg = "The job %s has been enabled, and continues to be scheduled normally";
+                    msg = String.format(msg, info.getJobCode());
+               
+                } else {
+                    
+                    udp.setStatus(JobStatus.Scheduled.index());
+                    udp.setDisable(true);
+                    
+                    msg = "The job %s has been expired, [cron=%s, %s-%s]";
+                    msg = String.format(msg, info.getJobCode(), info.getCronExpression(), 
+                        DateUtil.format(info.getActiveTime(), ConstCommons.FORMAT_DATETIME), 
+                        DateUtil.format(info.getExpireTime(), ConstCommons.FORMAT_DATETIME));
+                }
+                
+                this.updateById(udp);
+                
+                // 写日志
+                JobLog log = new JobLog();
+                log.setJobId(info.getId());
+                log.setStatus(JobLogStatus.Successful.index());
+                log.setStartTime(startTime);
+                log.setEndTime(new Date());
+                jobLogService.insert(log);
+                
+                LOGGER.info(msg);
+                logManager.sendMsg(new MessageData(new LogMeta(Level.INFO, msg)));
+            }
+
+            res.setModel(info);
+
+        } catch (Throwable ex) {
+            LOGGER.error("", ex);
+            res.setCode(FAIL);
+            res.setMsg(I18nMessages.getCauseMsg(ex));
+            res.setI18nMsg(I18nMessages.getI18nMsg(MSGT0030E000000, ex, info));
+        }
+
+        return res;
     }
 
     @Override
-    public Result enableJob(Long id, boolean isRestart) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public Result disableJob(Long id) {
+        
+        Result res = new Result();
+        
+        Date startTime = new Date();
+        JobInfo info   = null;
+        
+        try {
+            info = this.findById(id);
+            if(info == null){
+                res.setCode(FAIL);
+                res.setI18nMsg(new ResultMsg(MSGT0018I000001, "JobInfo", id));
+                return res;
+            }
+            
+            JobStatus status = JobStatus.valueOf(info.getStatus());
+            JobType jobType  = JobType.valueOf(info.getJobType());
+            // 正在调度
+            if(status == JobStatus.Scheduling){
+                res.setCode(FAIL);
+                res.setI18nMsg(new ResultMsg(MSGT0029E000001, info.getJobCode()));
+                return res;
+            }
+            
+            // 在调度中，移除调度
+            if(jobManager.checkExists(info.getJobCode(), jobType)){
+                 jobManager.removeJob(info.getJobCode(), jobType);
+            } else {
+                res.setI18nMsg(new ResultMsg(MSGT0029I000001, info.getJobCode()));
+            }
+            
+            JobInfo udp = new JobInfo();
+            udp.setId(id);
+            udp.setDisable(true);
+            udp.setStatus(JobStatus.Scheduled.index());
+            
+            this.updateById(udp);
+            
+            // 写日志
+            JobLog log = new JobLog();
+            log.setJobId(info.getId());
+            log.setStatus(JobLogStatus.Successful.index());
+            log.setStartTime(startTime);
+            log.setEndTime(new Date());
+            jobLogService.insert(log);
+            
+            String msg = "The job %s has been disabled";
+            msg = String.format(msg, info.getJobCode());
+            LOGGER.info(msg);
+            logManager.sendMsg(new MessageData(new LogMeta(Level.INFO, msg)));
+            
+            res.setModel(info);
+            
+        } catch (Throwable ex) {
+            LOGGER.error("", ex);
+            res.setCode(FAIL);
+            res.setMsg(DatahubException.getCauseMsg(ex));
+            res.setI18nMsg(I18nMessages.getI18nMsg(MSGT0029E000000, ex, info));
+        }
 
-    @Override
-    public Result disableJob(Long id, boolean once) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<JobInfo> findAvailableJobs(JobInfo where) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public boolean existByJobName(String jobName) {
-        // TODO Auto-generated method stub
-        return false;
+        return res;
     }
 
     @Override
     public Result deleteJob(Long id) {
-        // TODO Auto-generated method stub
-        return null;
+        // 移除调度
+        Result res = disableJob(id);
+        if(res.getCode() == FAIL){
+            return res;
+        }
+        // 删除执行历史记录
+        jobLogService.deleteByJobId(id);
+        // 删除任务记录
+        super.deleteById(id);
+
+        LOGGER.info("deleted job and job logs, jobId={}", id);
+        return res;
     }
     
     /**
@@ -361,7 +501,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         Result res = null;
         // 有效期check
         if(info.getActiveTime()==null) {
-            info.setEffectiveTime(new Date());
+            info.setActiveTime(new Date());
         }
         if(info.getExpireTime()==null) {
             info.setExpireTime(new Date(ConstCommons.MAX_DATE));
@@ -418,11 +558,6 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
     
     @Override
     public void initAll() {
-
-    }
-
-    @Override
-    public void initJobLogs(Long jobId, String because) {
 
     }
 

@@ -198,7 +198,7 @@ public class BaseController implements I18nCodes{
 	    info.setStartDelay(10L);
 	    info.setCronExpression(form.getCronExpression());
 		
-		info.setEffectiveTime(form.getStartTime());
+		info.setActiveTime(form.getStartTime());
 		info.setExpireTime(form.getEndTime());
 		
 		info.setStatus(JobStatus.Normal.index());

@@ -7,11 +7,12 @@
         <result column="job_id" property="jobId" jdbcType="BIGINT"/>
         <result column="status" property="status" jdbcType="INTEGER"/>
         <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="config" property="config" jdbcType="LONGVARCHAR"/>
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
         <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 	<sql id="Base_Column_List">
-		id, job_id, status, path, start_time, end_time
+		id, job_id, status, path, config, start_time, end_time
 	</sql>
 	<select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long">
 		select
@@ -20,8 +21,10 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 	<delete id="deleteById" parameterType="java.lang.Long">
-		delete from job_log
-		where id = #{id,jdbcType=BIGINT}
+		delete from job_log where id = #{id,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteByJobId" parameterType="java.lang.Long">
+		delete from job_log where job_id = #{jobId,jdbcType=BIGINT}
 	</delete>
 	<update id="updateById" parameterType="org.shersfy.datahub.jobmanager.model.JobLog">
 		update job_log
@@ -35,6 +38,10 @@
 
 			<if test="path != null">
 				path = #{path,jdbcType=VARCHAR},
+			</if>
+			
+			<if test="config != null">
+				path = #{config,jdbcType=VARCHAR},
 			</if>
 
 			<if test="startTime != null">
@@ -51,11 +58,12 @@
 	</update>
 	<insert id="insert" parameterType="JobLog" keyProperty="id" useGeneratedKeys="true">
 		insert into job_log (id, job_id, status,
-		path, start_time, end_time
+		path, config, start_time, end_time
 		)
 		values (#{id,jdbcType=BIGINT}, #{jobId,jdbcType=BIGINT},
 		#{status,jdbcType=INTEGER},
-		#{path,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}
+		#{path,jdbcType=VARCHAR}, #{config,jdbcType=LONGVARCHAR}, 
+		#{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}
 		)
 	</insert>
 	<select id="findList" resultMap="BaseResultMap" parameterType="JobLog">
@@ -80,6 +88,7 @@
             <if test="jobId != null">and job_id = #{jobId, jdbcType=BIGINT}</if>
             <if test="status != null">and status = #{status, jdbcType=INTEGER}</if>
             <if test="path != null">and path = #{path, jdbcType=VARCHAR}</if>
+            <if test="config != null">and config like concat("%", #{config},"%")</if>
             <if test="startTime != null"><![CDATA[  and start_time >=  DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T') ]]></if>
 			<if test="endTime != null"> <![CDATA[ and start_time <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %T') ]]> </if>
         </where>

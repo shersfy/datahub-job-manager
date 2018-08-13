@@ -15,6 +15,9 @@ public class JobLog extends BaseEntity {
 
     /** 日志存放路径 **/
     private String path;
+    
+    /** 历史配置参数 **/
+    private String config;
 
     public Long getJobId() {
         return jobId;
@@ -38,6 +41,14 @@ public class JobLog extends BaseEntity {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getConfig() {
+        return config;
+    }
+
+    public void setConfig(String config) {
+        this.config = config;
     }
 
 }

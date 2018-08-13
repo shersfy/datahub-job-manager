@@ -102,7 +102,7 @@ public class JobInfo extends BaseEntity {
         return activeTime;
     }
 
-    public void setEffectiveTime(Date activeTime) {
+    public void setActiveTime(Date activeTime) {
         this.activeTime = activeTime;
     }
 

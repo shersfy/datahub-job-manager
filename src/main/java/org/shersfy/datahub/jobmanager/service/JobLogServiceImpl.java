@@ -21,5 +21,10 @@ public class JobLogServiceImpl extends BaseServiceImpl<JobLog, Long>
     public BaseMapper<JobLog, Long> getMapper() {
         return mapper;
     }
+
+    @Override
+    public int deleteByJobId(Long jobId) {
+        return mapper.deleteByJobId(jobId);
+    }
     
 }
