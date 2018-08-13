@@ -6,7 +6,7 @@ import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
-import org.shersfy.datahub.jobmanager.constant.Const.JobType;
+import org.shersfy.datahub.commons.constant.JobConst.JobType;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 

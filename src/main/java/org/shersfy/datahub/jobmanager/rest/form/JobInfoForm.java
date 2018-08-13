@@ -5,8 +5,8 @@ import javax.validation.constraints.NotBlank;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.Length;
-import org.shersfy.datahub.jobmanager.constant.Const;
-import org.shersfy.datahub.jobmanager.constant.Const.JobType;
+import org.shersfy.datahub.commons.constant.JobConst;
+import org.shersfy.datahub.commons.constant.JobConst.JobType;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
@@ -36,7 +36,7 @@ public class JobInfoForm extends BaseForm{
 		}
 		
 		if(StringUtils.isBlank(cronExpression) || once){
-			cronExpression = Const.CRON_DEFAULT;
+			cronExpression = JobConst.CRON_DEFAULT;
 		}
 		
 		ObjectError error = null;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.shersfy.datahub.commons.beans.Page;
 import org.shersfy.datahub.commons.beans.Result;
-import org.shersfy.datahub.jobmanager.constant.Const.JobType;
+import org.shersfy.datahub.commons.constant.JobConst.JobType;
 import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobInfoVo;

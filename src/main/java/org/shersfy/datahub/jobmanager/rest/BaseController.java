@@ -13,10 +13,10 @@ import org.apache.commons.lang.StringUtils;
 import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.commons.beans.Result.ResultCode;
 import org.shersfy.datahub.commons.beans.ResultMsg;
+import org.shersfy.datahub.commons.constant.JobConst.JobPeriodType;
+import org.shersfy.datahub.commons.constant.JobConst.JobStatus;
+import org.shersfy.datahub.commons.constant.JobConst.JobType;
 import org.shersfy.datahub.jobmanager.constant.Const;
-import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
-import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
-import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.i18n.I18nCodes;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
 import org.shersfy.datahub.jobmanager.i18n.PropertiesExt;
@@ -40,7 +40,7 @@ public class BaseController implements I18nCodes{
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(BaseController.class);
 
-	private static ThreadLocal<HttpServletRequest> THREAD_LOCAL_REQUEST = new ThreadLocal<>();
+	private static ThreadLocal<HttpServletRequest> THREAD_LOCAL_REQUEST   = new ThreadLocal<>();
 	private static ThreadLocal<HttpServletResponse> THREAD_LOCAL_RESPONSE = new ThreadLocal<>();
 	
 	/**处理成功**/

@@ -12,16 +12,16 @@ import org.quartz.JobDataMap;
 import org.shersfy.datahub.commons.beans.Page;
 import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.commons.beans.ResultMsg;
-import org.shersfy.datahub.commons.constant.ConstCommons;
+import org.shersfy.datahub.commons.constant.CommConst;
+import org.shersfy.datahub.commons.constant.JobConst.CronType;
+import org.shersfy.datahub.commons.constant.JobConst.JobLogStatus;
+import org.shersfy.datahub.commons.constant.JobConst.JobPeriodType;
+import org.shersfy.datahub.commons.constant.JobConst.JobStatus;
+import org.shersfy.datahub.commons.constant.JobConst.JobType;
 import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.commons.meta.LogMeta;
 import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.commons.utils.DateUtil;
-import org.shersfy.datahub.jobmanager.constant.Const.CronType;
-import org.shersfy.datahub.jobmanager.constant.Const.JobLogStatus;
-import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
-import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
-import org.shersfy.datahub.jobmanager.constant.Const.JobType;
 import org.shersfy.datahub.jobmanager.feign.DhubDbExecutorClient;
 import org.shersfy.datahub.jobmanager.feign.JobServicesFeignClient;
 import org.shersfy.datahub.jobmanager.i18n.I18nMessages;
@@ -189,8 +189,8 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
             res.setCode(FAIL);
             res.setMsg(I18nMessages.getCauseMsg(ex));
             if(res.getMsg().contains("will never fire")){
-                String start    =  DateUtil.format(info.getStartTime(), ConstCommons.FORMAT_DATETIME);
-                String end      =  DateUtil.format(info.getEndTime(), ConstCommons.FORMAT_DATETIME);
+                String start    =  DateUtil.format(info.getStartTime(), CommConst.FORMAT_DATETIME);
+                String end      =  DateUtil.format(info.getEndTime(), CommConst.FORMAT_DATETIME);
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(info.getEndTime());
                 if(cal.get(Calendar.YEAR)==9999){
@@ -381,8 +381,8 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
                     
                     msg = "The job %s has been expired, [cron=%s, %s-%s]";
                     msg = String.format(msg, info.getJobCode(), info.getCronExpression(), 
-                        DateUtil.format(info.getActiveTime(), ConstCommons.FORMAT_DATETIME), 
-                        DateUtil.format(info.getExpireTime(), ConstCommons.FORMAT_DATETIME));
+                        DateUtil.format(info.getActiveTime(), CommConst.FORMAT_DATETIME), 
+                        DateUtil.format(info.getExpireTime(), CommConst.FORMAT_DATETIME));
                 }
                 
                 this.updateById(udp);
@@ -504,12 +504,12 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
             info.setActiveTime(new Date());
         }
         if(info.getExpireTime()==null) {
-            info.setExpireTime(new Date(ConstCommons.MAX_DATE));
+            info.setExpireTime(new Date(CommConst.MAX_DATE));
         }
         if(!isEffective(info)){
             res = new Result();
-            String active = DateUtil.format(info.getActiveTime(), ConstCommons.FORMAT_DATETIME);
-            String expire = DateUtil.format(info.getExpireTime(), ConstCommons.FORMAT_DATETIME);
+            String active = DateUtil.format(info.getActiveTime(), CommConst.FORMAT_DATETIME);
+            String expire = DateUtil.format(info.getExpireTime(), CommConst.FORMAT_DATETIME);
             Calendar cal = Calendar.getInstance();
             cal.setTime(info.getActiveTime());
             if(cal.get(Calendar.YEAR)==9999){

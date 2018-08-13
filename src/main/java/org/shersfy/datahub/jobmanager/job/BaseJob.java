@@ -6,15 +6,15 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.shersfy.datahub.commons.constant.ConstCommons;
+import org.shersfy.datahub.commons.constant.CommConst;
+import org.shersfy.datahub.commons.constant.JobConst.JobLogStatus;
+import org.shersfy.datahub.commons.constant.JobConst.JobPeriodType;
+import org.shersfy.datahub.commons.constant.JobConst.JobStatus;
 import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.commons.exception.ExpiredException;
 import org.shersfy.datahub.commons.meta.LogMeta;
 import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.commons.utils.DateUtil;
-import org.shersfy.datahub.jobmanager.constant.Const.JobLogStatus;
-import org.shersfy.datahub.jobmanager.constant.Const.JobPeriodType;
-import org.shersfy.datahub.jobmanager.constant.Const.JobStatus;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobLog;
 import org.shersfy.datahub.jobmanager.service.InitJobManager;
@@ -131,7 +131,7 @@ public abstract class BaseJob implements Job{
      */
     public void exceptionJob(DatahubException ex){
         if(ex instanceof ExpiredException) {
-            String expire = DateUtil.format(job.getExpireTime(), ConstCommons.FORMAT_DATETIME);
+            String expire = DateUtil.format(job.getExpireTime(), CommConst.FORMAT_DATETIME);
             LOGGER.info("jobId={}, logId={}, expired {}, {}", job==null?"":job.getId(), 
                 log==null?"":log.getId(), expire, job.getCronExpression());
             return;
