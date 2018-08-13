@@ -5,8 +5,16 @@ params.pid=1
 params.jobName=数据库上传
 params.jobType=db
 params.once=true
-params.config.dataSource.dbType=MySQL
-params.config.dataSource.url=jdbc:mysql://127.0.0.1:3306/datahub_job_manager?useUnicode=true&characterEncoding=utf8&useSSL=false
-params.config.dataSource.username=root
-params.config.dataSource.password=123456
-params.config.dataSource.sql=select * from job_log
+
+params.config.inputParams.dataSource.dbType=MySQL
+params.config.inputParams.dataSource.url=jdbc:mysql://127.0.0.1:3306/datahub_test?useSSL=false
+params.config.inputParams.dataSource.username=root
+params.config.inputParams.dataSource.password=MkAYQFiDoq/n0M/5ALLkBg==
+params.config.inputParams.table.catalog=datahub_test
+params.config.inputParams.table.name=job_log
+
+params.config.outputType=hdfs
+params.config.outputHdfsParams.hdfs.url=hdfs://192.168.186.129:9000
+params.config.outputHdfsParams.directory=/mysql/datahub_test/job_log
+
+
