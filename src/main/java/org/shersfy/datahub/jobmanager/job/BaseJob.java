@@ -12,9 +12,9 @@ import org.shersfy.datahub.commons.constant.JobConst.JobPeriodType;
 import org.shersfy.datahub.commons.constant.JobConst.JobStatus;
 import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.commons.exception.ExpiredException;
-import org.shersfy.datahub.commons.meta.LogMeta;
 import org.shersfy.datahub.commons.meta.MessageData;
 import org.shersfy.datahub.commons.utils.DateUtil;
+import org.shersfy.datahub.commons.utils.JobLogUtil;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.model.JobLog;
 import org.shersfy.datahub.jobmanager.service.InitJobManager;
@@ -96,6 +96,7 @@ public abstract class BaseJob implements Job{
         log = new JobLog();
         log.setJobId(job.getId());
         log.setStatus(JobLogStatus.Executing.index());
+        log.setConfig(job.getConfig());
         log.setStartTime(new Date());
         log.setEndTime(log.getStartTime());
 
@@ -187,13 +188,8 @@ public abstract class BaseJob implements Job{
             LOGGER.info("job log is null, {}", msg);
             return;
         }
-        msg = msg == null?"":msg;
-        msg = String.format("jobId=%s, logId=%s, %s", job.getId(), log.getId(), msg);
-
-        LogMeta meta = new LogMeta(level, msg);
-        String data  = "{\"jobId\": %s, \"logId\": %s, \"content\": \"%s\"}";
-        data = String.format(data, job.getId(), log.getId(), meta.getLine());
-
+        
+        String data = JobLogUtil.getMsgData(level, job.getId(), log.getId(), msg).toString();
         logManager.sendMsg(new MessageData(data));
     }
 

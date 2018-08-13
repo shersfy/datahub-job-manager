@@ -2,10 +2,11 @@
 Database Name:	datahub
 MySQL Version:	5.7.17 MySQL Community Server (GPL) for Linux (x86_64)
 Author: 		py
-Release Date:	2017-03-01
+Release Date:	2018-08-13
 SQL_MODE:		STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
-CMD: 			mysql -u -p -h --default-character-set=utf8 < ../datahub-release.sql
+CMD: 			mysql -u -p -h --default-character-set=utf8 < ../datahub.sql
 */
+
 
 CREATE DATABASE datahub_job_manager DEFAULT CHARACTER SET utf8 ;
 use datahub_job_manager;
