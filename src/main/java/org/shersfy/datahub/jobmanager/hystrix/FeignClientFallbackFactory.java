@@ -20,8 +20,11 @@ public class FeignClientFallbackFactory implements FallbackFactory<DhubDbExecuto
 
     @Override
     public DhubDbExecutorClient create(Throwable cause) {
-        String err = String.format("call service '%s' error: ", DhubDbExecutorClient.serviceId);
-        LOGGER.error(err, cause);
+        // 屏蔽服务启动报 java.lang.RuntimeException: null
+        if(!(cause instanceof RuntimeException)) {
+            String err = String.format("call service '%s' error: ", DhubDbExecutorClient.serviceId);
+            LOGGER.error(err, cause);
+        }
         return dhubDbExecutorFallback;
     }
     

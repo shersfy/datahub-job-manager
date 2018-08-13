@@ -1,5 +1,7 @@
 package org.shersfy.datahub.jobmanager.test;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.shersfy.datahub.commons.utils.HttpUtil;
 import org.shersfy.datahub.commons.utils.HttpUtil.HttpParamsLoader;
@@ -10,7 +12,17 @@ import org.slf4j.LoggerFactory;
 
 public class JobMangerTest {
     
-    Logger logger = LoggerFactory.getLogger(getClass()); 
+    Logger logger = LoggerFactory.getLogger(getClass());
+    
+    @Before
+    public void beforeMethod() {
+        logger.info("start ...");
+    }
+    
+    @After
+    public void afterMethod() {
+        logger.info("finished");
+    }
     
     @Test
     public void test01() {
