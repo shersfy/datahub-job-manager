@@ -1,6 +1,5 @@
 package org.shersfy.datahub.jobmanager.i18n;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import org.shersfy.datahub.commons.exception.DatahubException;
 import org.shersfy.datahub.commons.utils.LocaleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -153,26 +151,18 @@ public class I18nMessages implements I18nCodes{
 	      }
 	    }
 	    
-	    for(Resource location :resources){
-            if(location instanceof FileSystemResource){
-                FileSystemResource src = (FileSystemResource) location;
-                String path = src.getPath();
-                String name = FilenameUtils.getName(path);
-                if(name.endsWith(".properties")){
-                    //处理单个文件
-                    String lang = name.substring(name.indexOf("_")+1, name.indexOf("."));
-                    PropertiesExt pror = new PropertiesExt();
-                    PropertiesLoaderUtils.fillProperties(pror, new EncodedResource(src, this.fileEncoding));
-                    I18N.put(LocaleUtil.toLocale(lang).getLanguage(), pror);
-                    File file = location.getFile();
-                    LOGGER.info("I18n loaded messages file {}", file.getName());
-                    
-                }
-                else{
-                    
-                }
-            }
-        }
+	    for(Resource res :resources){
+	        String name = FilenameUtils.getName(res.getFilename());
+	        if(!name.endsWith(".properties")) {
+	            break;
+	        }
+	        //处理单个文件
+	        String lang = name.substring(name.indexOf("_")+1, name.indexOf("."));
+	        PropertiesExt pror = new PropertiesExt();
+	        PropertiesLoaderUtils.fillProperties(pror, new EncodedResource(res, this.fileEncoding));
+	        I18N.put(LocaleUtil.toLocale(lang).getLanguage(), pror);
+	        LOGGER.info("I18n loaded messages file {}", name);
+	    }
 	    
 	    this.locations = resources.toArray(new Resource[resources.size()]);
 	}
