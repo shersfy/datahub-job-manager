@@ -351,6 +351,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         
         try {
             JobDataMap map = this.getMap(job);
+            map.put("logId", logId);
             jobManager.onceImmediate(job, map);
         } catch (Throwable ex) {
             LOGGER.error("", ex);

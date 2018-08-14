@@ -41,7 +41,7 @@
 			</if>
 			
 			<if test="config != null">
-				path = #{config,jdbcType=VARCHAR},
+				config = #{config,jdbcType=VARCHAR},
 			</if>
 
 			<if test="startTime != null">

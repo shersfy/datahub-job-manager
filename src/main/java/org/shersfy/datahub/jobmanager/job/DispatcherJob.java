@@ -21,46 +21,33 @@ public class DispatcherJob extends BaseJob{
 
     @Override
     public void dispatch(JobExecutionContext context) throws DatahubException {
-        
+
         JobInfo job = getJob();
         JobLog log  = getJobLog();
-        
+
         Result res = null;
-        try {
-            ServicesFeignClient client = jobInfoService.getServicesFeignClient(JobType.valueOf(job.getJobType()));
-            // 调用服务分发任务
-            sendMsg2LogManager(Level.INFO, "dispatch job parameters config ...");
-            String text = client.callConfigJob(job.getId(), log.getId(), job.getConfig());
-            res = JSON.parseObject(text, Result.class);
-            if(res.getCode()!=ResultCode.SUCESS) {
-                sendMsg2LogManager(Level.ERROR, "dispatch job parameters config error: "+res.getMsg());
-            } else {
-                sendMsg2LogManager(Level.INFO, "dispatch job parameters config successful");
-            }
-            
-        } finally {
-            rollback(log, res);
+        ServicesFeignClient client = jobInfoService.getServicesFeignClient(JobType.valueOf(job.getJobType()));
+        // 调用服务分发任务
+        sendMsg2LogManager(Level.INFO, "dispatch job parameters config ...");
+        String text = client.callConfigJob(job.getId(), log.getId(), job.getConfig());
+
+        res = JSON.parseObject(text, Result.class);
+        if(res==null || res.getCode()!=ResultCode.SUCESS) {
+            sendMsg2LogManager(Level.ERROR, "dispatch job parameters config error: "+res==null?"":res.getMsg());
+            throw new DispatchException();
         }
         
+        sendMsg2LogManager(Level.INFO, "dispatch job parameters config successful");
+
     }
 
-    /**回滚删除执行记录**/
-    private void rollback(JobLog log, Result res) {
-        
-        if(res==null||res.getCode()!=ResultCode.SUCESS) {
-            int seconds = 60;
-            while(seconds>0) {
-                if(jobLogService.deleteById(log.getId())==1) {
-                    LOGGER.info("delete job log, id={}", log.getId());
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
-                seconds --;
-            }
-        }
+    public class DispatchException extends DatahubException{
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
     }
-    
+
 }

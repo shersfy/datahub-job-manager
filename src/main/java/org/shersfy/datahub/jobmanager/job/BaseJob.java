@@ -82,26 +82,36 @@ public abstract class BaseJob implements Job{
         
         Long jobId = dataMap.getLong("jobId");
         timeOut    = dataMap.getLong("jobDispatchTimeoutSeconds");
+        Long logId = dataMap.get("logId")==null?null:dataMap.getLong("logId");
 
         job = jobInfoService.findById(jobId);
         job = job==null?(JobInfo) dataMap.get("job"):job;
 
         LOGGER.info("jobId={}, logId={}, begining ...", job==null?"":job.getId(), log==null?"":log.getId());
 
-        if(expire()) {
+
+        // 插入或更新执行记录
+        if(logId == null) {
+            log = new JobLog();
+        } else {
+            log = jobLogService.findById(logId);
+        }
+        if(expire() || log==null) {
             throw new ExpiredException("the job expired");
         }
-
-        // 插入执行记录
-        log = new JobLog();
         log.setJobId(job.getId());
         log.setStatus(JobLogStatus.Executing.index());
         log.setConfig(job.getConfig());
         log.setStartTime(new Date());
         log.setEndTime(log.getStartTime());
-
-        jobLogService.insert(log);
-        LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
+        
+        if(logId == null) {
+            jobLogService.insert(log);
+            LOGGER.info("jobId={}, logId={}, insert job log record", job.getId(), log.getId());
+        } else {
+            jobLogService.updateById(log);
+            LOGGER.info("jobId={}, logId={}, update job log record", job.getId(), log.getId());
+        }
 
         JobInfo udp = new JobInfo();
         udp.setId(job.getId());
