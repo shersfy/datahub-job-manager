@@ -67,6 +67,13 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
 	 * @return Result
 	 */
 	public Result enableJob(Long id);
+	
+	/**
+	 * 重新执行一次
+	 * @param logId
+	 * @return
+	 */
+	public Result retryOnce(Long logId);
 
 	/**
 	 * 禁用调度
@@ -109,5 +116,6 @@ public interface JobInfoService extends BaseService<JobInfo, Long> {
     public JobLogService getJobLogService();
 
     public LogManager getLogManager();
+    
 
 }

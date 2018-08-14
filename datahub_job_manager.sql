@@ -38,7 +38,7 @@ CREATE TABLE `job_info` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_job_key` (`job_code`,`job_type`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务';
+) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务';
 
 -- ----------------------------
 -- Table structure for job_log
@@ -47,7 +47,7 @@ DROP TABLE IF EXISTS `job_log`;
 CREATE TABLE `job_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `job_id` bigint(20) NOT NULL COMMENT '任务ID',
-  `status` int(1) NOT NULL DEFAULT '0' COMMENT '结果状态(0：执行中(默认)，1：执行成功，2：执行失败)',
+  `status` int(1) NOT NULL DEFAULT '1' COMMENT '结果状态(1：执行中(默认)，2：执行成功，3：执行失败)',
   `path` varchar(255) COMMENT '日志存放路径',
   `config` longtext COMMENT '历史配置参数',
   `start_time` timestamp NULL DEFAULT NULL COMMENT '开始时间',

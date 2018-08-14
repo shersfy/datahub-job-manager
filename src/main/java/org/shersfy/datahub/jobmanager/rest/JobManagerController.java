@@ -74,6 +74,12 @@ public class JobManagerController extends BaseController{
         return formatMsg(res);
     }
     
+    @GetMapping("/api/v1/job/retry")
+    public Object retryOnce(Long logId) {
+        Result res = jobInfoService.retryOnce(logId);
+        return formatMsg(res);
+    }
+    
     @GetMapping("/api/v1/job/disable")
     public Object disableJob(Long id) {
         Result res = jobInfoService.disableJob(id);

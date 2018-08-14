@@ -87,7 +87,7 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
         Page<JobInfoVo> pageVo = Page.getPageInstance(JobInfoVo.class, pagePo);
         List<JobInfoVo> listVo = new ArrayList<JobInfoVo>();
         for(JobInfo po: pagePo.getData()){
-            list.add(this.poToVo(po));
+            listVo.add(this.poToVo(po));
         }
 
         pageVo.setData(listVo);
@@ -328,6 +328,37 @@ public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long>
             res.setMsg(I18nMessages.getCauseMsg(ex));
             res.setI18nMsg(I18nMessages.getI18nMsg(MSGT0028E000000, ex, jobCode));
         }
+        return res;
+    }
+    
+    @Override
+    public Result retryOnce(Long logId) {
+        Result res = new Result();
+        
+        JobLog log = jobLogService.findById(logId);
+        if(log == null){
+            res.setCode(FAIL);
+            res.setI18nMsg(new ResultMsg(MSGT0018I000001, "JobLog", logId));
+            return res;
+        }
+        
+        JobInfo job = this.findById(log.getJobId());
+        if(job == null){
+            res.setCode(FAIL);
+            res.setI18nMsg(new ResultMsg(MSGT0018I000001, "JobInfo", log.getJobId()));
+            return res;
+        }
+        
+        try {
+            JobDataMap map = this.getMap(job);
+            jobManager.onceImmediate(job, map);
+        } catch (Throwable ex) {
+            LOGGER.error("", ex);
+            res.setCode(FAIL);
+            res.setMsg(I18nMessages.getCauseMsg(ex));
+            res.setI18nMsg(I18nMessages.getI18nMsg(MSGT0030E000000, ex, job));
+        }
+        
         return res;
     }
 

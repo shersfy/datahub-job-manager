@@ -10,7 +10,7 @@ public class JobLog extends BaseEntity {
     /** 任务ID **/
     private Long jobId;
 
-    /** 结果状态(0：执行中(默认)，1：执行成功，2：执行失败) **/
+    /** 结果状态(1：执行中(默认)，2：执行成功，3：执行失败) **/
     private Integer status;
 
     /** 日志存放路径 **/
