@@ -39,9 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 
+@RefreshScope
 @Transactional
 @Service("jobInfoService")
-@RefreshScope
 public class JobInfoServiceImpl extends BaseServiceImpl<JobInfo, Long> 
     implements JobInfoService {
 

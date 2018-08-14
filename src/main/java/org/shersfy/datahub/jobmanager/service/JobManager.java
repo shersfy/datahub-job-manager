@@ -30,14 +30,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
  * 作业任务管理器
  */
-@Component("jobManager")
-//@Order(100)
 @RefreshScope
+@Transactional
+//@Order(100)
+@Component("jobManager")
 public class JobManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobManager.class);

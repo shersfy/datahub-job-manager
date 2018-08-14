@@ -38,7 +38,7 @@ CREATE TABLE `job_info` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_job_key` (`job_code`,`job_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务';
 
 -- ----------------------------
 -- Table structure for job_log
@@ -53,7 +53,7 @@ CREATE TABLE `job_log` (
   `start_time` timestamp NULL DEFAULT NULL COMMENT '开始时间',
   `end_time` timestamp NULL DEFAULT NULL COMMENT '结束时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='任务执行历史记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='任务执行历史记录';
 
 -- ----------------------------
 -- Quartz config

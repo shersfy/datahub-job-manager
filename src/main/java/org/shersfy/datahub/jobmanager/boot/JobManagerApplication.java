@@ -9,8 +9,10 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableDiscoveryClient
+@EnableTransactionManagement
 @EnableFeignClients(basePackages="org.shersfy.datahub.jobmanager.feign")
 @MapperScan("org.shersfy.datahub.jobmanager.mapper")
 @ComponentScan(basePackages="org.shersfy.datahub.jobmanager", 
