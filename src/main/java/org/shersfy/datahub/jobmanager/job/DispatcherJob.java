@@ -27,17 +27,18 @@ public class DispatcherJob extends BaseJob{
 
         Result res = null;
         ServicesFeignClient client = jobInfoService.getServicesFeignClient(JobType.valueOf(job.getJobType()));
-        // 调用服务分发任务
-        sendMsg2LogManager(Level.INFO, "dispatch job parameters config ...");
-        String text = client.callConfigJob(job.getId(), log.getId(), job.getConfig());
+        // 调用服务执行任务
+        sendMsg(Level.INFO, "dispatch job parameters config ...");
+        String text = client.callExecuteJob(job.getId(), log.getId(), job.getConfig());
 
         res = JSON.parseObject(text, Result.class);
         if(res==null || res.getCode()!=ResultCode.SUCESS) {
-            sendMsg2LogManager(Level.ERROR, "dispatch job parameters config error: "+res==null?"":res.getMsg());
-            throw new DispatchException();
+            String err = "dispatch job parameters config error: "+res==null?"":res.getMsg();
+            sendMsg(Level.ERROR, err);
+            throw new DispatchException(err);
         }
         
-        sendMsg2LogManager(Level.INFO, "dispatch job parameters config successful");
+        sendMsg(Level.INFO, "dispatch job parameters config successful");
 
     }
 
@@ -47,6 +48,12 @@ public class DispatcherJob extends BaseJob{
          * 
          */
         private static final long serialVersionUID = 1L;
+        
+        public DispatchException() {}
+
+        public DispatchException(String message) {
+            super(message);
+        }
 
     }
 

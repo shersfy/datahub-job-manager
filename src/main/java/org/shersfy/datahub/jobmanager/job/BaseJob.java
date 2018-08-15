@@ -193,7 +193,7 @@ public abstract class BaseJob implements Job{
     }
 
     /**发送日志到日志管理器**/
-    public void sendMsg2LogManager(Level level, String msg) {
+    public void sendMsg(Level level, String msg) {
         if(log==null || log.getId()==null) {
             LOGGER.info("job log is null, {}", msg);
             return;
