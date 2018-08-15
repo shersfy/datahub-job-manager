@@ -23,7 +23,7 @@ public interface BaseService<T extends BaseEntity, Id extends Serializable> exte
 	
 	int deleteById(Id id);
 	
-	int deleteByIds(List<Long> ids);
+	int deleteByIds(List<Id> ids);
 
 	int insert(T entity);
 

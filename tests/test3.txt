@@ -15,6 +15,6 @@ params.config.inputParams.table.name=job_log
 
 params.config.outputType=hdfs
 params.config.outputHdfsParams.hdfs.url=hdfs://192.168.186.129:9000
-params.config.outputHdfsParams.directory=/mysql/datahub_test/job_log
-
-
+params.config.outputHdfsParams.hdfs.userName=hdfs
+params.config.outputHdfsParams.directory=/data/mysql/datahub_test/job_log
+params.config.outputHdfsParams.columnSep=\t
