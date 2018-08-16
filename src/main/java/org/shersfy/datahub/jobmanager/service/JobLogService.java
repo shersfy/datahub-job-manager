@@ -1,6 +1,7 @@
 package org.shersfy.datahub.jobmanager.service;
 
 
+import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.jobmanager.model.JobLog;
 
 /**
@@ -9,5 +10,7 @@ import org.shersfy.datahub.jobmanager.model.JobLog;
 public interface JobLogService extends BaseService<JobLog, Long> {
 
     int deleteByJobId(Long jobId);
+
+    Result updateLog(Long logId, int status);
 	
 }

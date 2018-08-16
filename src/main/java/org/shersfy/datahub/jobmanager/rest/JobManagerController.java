@@ -9,6 +9,7 @@ import org.shersfy.datahub.commons.beans.Result;
 import org.shersfy.datahub.jobmanager.model.JobInfo;
 import org.shersfy.datahub.jobmanager.rest.form.JobInfoForm;
 import org.shersfy.datahub.jobmanager.service.JobInfoService;
+import org.shersfy.datahub.jobmanager.service.JobLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,9 @@ public class JobManagerController extends BaseController{
     
     @Resource
     private JobInfoService jobInfoService;
+    
+    @Resource
+    private JobLogService jobLogService;
     
     @GetMapping("/")
     public Object index() {
@@ -92,5 +96,10 @@ public class JobManagerController extends BaseController{
         return formatMsg(res);
     }
     
+    @GetMapping("/api/v1/log/update")
+    public Object updateLog(Long logId, int status) {
+        Result res = jobLogService.updateLog(logId, status);
+        return formatMsg(res);
+    }
     
 }
