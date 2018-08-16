@@ -1,5 +1,7 @@
 package org.shersfy.datahub.jobmanager.service;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 
 import org.shersfy.datahub.commons.beans.Result;
@@ -29,6 +31,15 @@ public class JobLogServiceImpl extends BaseServiceImpl<JobLog, Long>
     public int deleteByJobId(Long jobId) {
         return mapper.deleteByJobId(jobId);
     }
+    
+    @Override
+    public int updateById(JobLog entity) {
+        if(entity.getEndTime()==null) {
+            entity.setEndTime(new Date());
+        }
+        return super.updateById(entity);
+    }
+    
 
     @Override
     public Result updateLog(Long logId, int status) {
@@ -68,5 +79,6 @@ public class JobLogServiceImpl extends BaseServiceImpl<JobLog, Long>
         res.setModel(updstatus);
         return res;
     }
+
     
 }
